@@ -11,6 +11,7 @@ import TopBar from "./components/TopBar";
 import SideBar from "./components/SideBar";
 import { getDesignTokens } from "./theme";
 import { Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -23,6 +24,9 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 export default function MiniDrawer() {
   const [open, setOpen] = React.useState(false);
+  // @ts-ignore
+  const user = useSelector((state) => state?.user);
+  console.log(user);
 
   const handleDrawerOpen = () => {
     setOpen(true);

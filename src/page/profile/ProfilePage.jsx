@@ -1,7 +1,5 @@
 // ProfilePage.jsx
-import React, { useState, useEffect } from "react";
-import { connect } from "react-redux";
-import axios from "axios";
+import { useState } from "react";
 import {
   Button,
   TextField,
@@ -16,7 +14,6 @@ import {
 import { styled } from "@mui/material/styles";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Header from "../../components/Header";
-import { loginUser } from "./actions";
 
 const ProfilePageContainer = styled("div")({
   flexGrow: 1,
@@ -31,7 +28,7 @@ const AvatarImage = styled(Avatar)(({ theme }) => ({
   display: "block",
 }));
 
-const ProfilePage = ({ token, loginUser }) => {
+const ProfilePage = () => {
   const [profileData, setProfileData] = useState({
     nom: "",
     prenom: "",
@@ -52,32 +49,32 @@ const ProfilePage = ({ token, loginUser }) => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
-  useEffect(() => {
-    console.log("Token from Redux:", token); // Affiche le token dans la console
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/api/user/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const userData = response.data;
-        setProfileData(userData);
-      } catch (error) {
-        console.error("Error fetching user data:", error.message);
-      }
-    };
+  // useEffect(() => {
+  //   console.log("Token from Redux:", token); // Affiche le token dans la console
+  //   const fetchUserData = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://localhost:3000/api/user/userinfo",
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+  //       const userData = response.data;
+  //       setProfileData(userData);
+  //     } catch (error) {
+  //       console.error("Error fetching user data:", error.message);
+  //     }
+  //   };
 
-    fetchUserData();
+  //   fetchUserData();
 
-    const storedImageUrl = localStorage.getItem("profileImage");
-    if (storedImageUrl) {
-      setProfileImage(storedImageUrl);
-    }
-  }, [token]);
+  //   const storedImageUrl = localStorage.getItem("profileImage");
+  //   if (storedImageUrl) {
+  //     setProfileImage(storedImageUrl);
+  //   }
+  // }, [token]);
 
   const handleProfileDataChange = (event) => {
     const { name, value } = event.target;
@@ -91,27 +88,27 @@ const ProfilePage = ({ token, loginUser }) => {
     localStorage.setItem("profileImage", imageUrl);
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await axios.patch(
-        "http://localhost:3000/api/user/update",
-        profileData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        console.log("Profile updated successfully");
-      } else {
-        console.error("Failed to update profile");
-      }
-    } catch (error) {
-      console.error("Error updating profile:", error.message);
-    }
-  };
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   try {
+  //     const response = await axios.patch(
+  //       "http://localhost:3000/api/user/update",
+  //       profileData,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     if (response.status === 200) {
+  //       console.log("Profile updated successfully");
+  //     } else {
+  //       console.error("Failed to update profile");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating profile:", error.message);
+  //   }
+  // };
   const handleDateOfBirthFocus = () => {
     setIsDateOfBirthFocused(true);
   };
@@ -148,38 +145,38 @@ const ProfilePage = ({ token, loginUser }) => {
     setOpenDialog(false);
   };
 
-  const changePassword = async (oldPassword, newPassword) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/user/updatePassword",
-        { oldPassword, newPassword },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  // const changePassword = async (oldPassword, newPassword) => {
+  //   try {
+  //     const response = await axios.post(
+  //       "http://localhost:3000/api/user/updatePassword",
+  //       { oldPassword, newPassword },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
 
-      if (response.status === 201) {
-        console.log("Password changed successfully");
-      } else {
-        throw new Error("Failed to change password");
-      }
-    } catch (error) {
-      console.error("Error changing password:", error.message);
-    }
-  };
+  //     if (response.status === 201) {
+  //       console.log("Password changed successfully");
+  //     } else {
+  //       throw new Error("Failed to change password");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error changing password:", error.message);
+  //   }
+  // };
 
-  const handlePasswordChange = async () => {
-    try {
-      await changePassword(oldPassword, newPassword);
-      setOldPassword("");
-      setNewPassword("");
-      handleCloseDialog();
-    } catch (error) {
-      console.error("Error changing password:", error.message);
-    }
-  };
+  // const handlePasswordChange = async () => {
+  //   try {
+  //     await changePassword(oldPassword, newPassword);
+  //     setOldPassword("");
+  //     setNewPassword("");
+  //     handleCloseDialog();
+  //   } catch (error) {
+  //     console.error("Error changing password:", error.message);
+  //   }
+  // };
 
   return (
     <Box>
@@ -200,7 +197,7 @@ const ProfilePage = ({ token, loginUser }) => {
             />
           </label>
         </Box>
-        <form onSubmit={handleSubmit}>
+        <form>
           <TextField
             fullWidth
             label="Last Name"
@@ -339,7 +336,7 @@ const ProfilePage = ({ token, loginUser }) => {
             <Button onClick={handleCloseDialog} color="primary">
               Cancel
             </Button>
-            <Button onClick={handlePasswordChange} color="primary">
+            <Button color="primary">
               Save
             </Button>
           </DialogActions>
@@ -348,7 +345,4 @@ const ProfilePage = ({ token, loginUser }) => {
     </Box>
   );
 };
-const mapStateToProps = (state) => ({
-  token: state.auth.token,
-});
-export default connect(mapStateToProps, { loginUser })(ProfilePage);
+export default ProfilePage;

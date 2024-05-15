@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import store from "./page/profile/store";
 // Assurez-vous que le chemin vers votre store est correct
 import SignInSide from "./page/auth/SignInSide";
 import SignUp from "./page/auth/SignUp";
@@ -19,6 +18,8 @@ import ResetPasswordForm from "./page/auth/ResetPasswordForm";
 import ProfilePage from "./page/profile/ProfilePage";
 import Subscriptions from "./page/subscriptions/Subscriptions";
 import ReclamationForm from "./page/reclamation/ReclamationForm";
+import { persistor, store } from "./redux/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 const routes = (
   <Routes>
@@ -44,7 +45,9 @@ const routes = (
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
+      <PersistGate persistor={persistor}>
       <BrowserRouter>{routes}</BrowserRouter>
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );
