@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux"; // 1
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -14,9 +15,11 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
+import { loginUser } from "../../page/profile/actions"; // 2
 
 function SignInSide() {
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // 3
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -33,11 +36,18 @@ function SignInSide() {
         }
       );
 
+      console.log(response.data); // Ajoute ceci pour vérifier la structure de response.data
+
       if (response.status === 200) {
-        const token = response.data.token; // Récupérer le token depuis la réponse
-        // Enregistrez le token dans le stockage local ou dans Redux ici si nécessaire
-        localStorage.setItem("token", token); // Exemple de sauvegarde dans le stockage local
-        navigate("/home");
+        const token = response.data.accessToken; // Accès au token via response.data.accessToken
+        if (token) {
+          // Enregistrez le token dans le stockage local ou dans Redux ici si nécessaire
+          dispatch(loginUser(token)); // 4
+          localStorage.setItem("token", token); // Exemple de sauvegarde dans le stockage local
+          navigate("/home");
+        } else {
+          setError("Le token est manquant dans la réponse.");
+        }
       } else {
         const errorData = response.data;
         setError(errorData.message);
@@ -139,6 +149,7 @@ function SignInSide() {
               >
                 Sign In
               </Button>
+
               <Grid container>
                 <Grid item xs>
                   <Link onClick={handleResetPasswordFormClick} variant="body2">
@@ -151,6 +162,11 @@ function SignInSide() {
                   </Link>
                 </Grid>
               </Grid>
+              {error && (
+                <Typography color="error" variant="body2" align="center">
+                  {error}
+                </Typography>
+              )}
             </Box>
           </Box>
         </Grid>
