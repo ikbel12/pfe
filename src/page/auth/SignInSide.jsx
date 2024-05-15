@@ -14,8 +14,7 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import axios from "axios";
-import { loginUser } from "../../page/profile/actions"; // 2
+import { login } from "../../redux/apiCalls";
 
 function SignInSide() {
   const navigate = useNavigate();
@@ -24,34 +23,11 @@ function SignInSide() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (event) => {
+
+  const handleSubmit = async (/** @type {{ preventDefault: () => void; }} */ event) => {
     event.preventDefault();
-
     try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/login",
-        {
-          email,
-          password,
-        }
-      );
-
-      console.log(response.data); // Ajoute ceci pour vérifier la structure de response.data
-
-      if (response.status === 200) {
-        const token = response.data.accessToken; // Accès au token via response.data.accessToken
-        if (token) {
-          // Enregistrez le token dans le stockage local ou dans Redux ici si nécessaire
-          dispatch(loginUser(token)); // 4
-          localStorage.setItem("token", token); // Exemple de sauvegarde dans le stockage local
-          navigate("/home");
-        } else {
-          setError("Le token est manquant dans la réponse.");
-        }
-      } else {
-        const errorData = response.data;
-        setError(errorData.message);
-      }
+      await login(dispatch, { email, password });
     } catch (error) {
       console.error("Erreur lors de la connexion :", error);
       setError(
