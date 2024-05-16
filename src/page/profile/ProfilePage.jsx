@@ -14,6 +14,10 @@ import {
 import { styled } from "@mui/material/styles";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Header from "../../components/Header";
+import { useDispatch, useSelector } from "react-redux";
+import { update } from "../../redux/apiCalls";
+import { userRequest } from "../../requestMethod";
+import toast, { Toaster } from "react-hot-toast";
 
 const ProfilePageContainer = styled("div")({
   flexGrow: 1,
@@ -29,16 +33,19 @@ const AvatarImage = styled(Avatar)(({ theme }) => ({
 }));
 
 const ProfilePage = () => {
+  // @ts-ignore
+  const user = useSelector((state) => state?.user?.userInfo);
+  const dispatch = useDispatch();
   const [profileData, setProfileData] = useState({
-    nom: "",
-    prenom: "",
-    email: "",
-    num: "",
-    image: "",
-    isAdmin: "",
-    dateOfBirth: "",
-    password: "",
-    address: "",
+    nom: user?.nom,
+    prenom: user?.prenom,
+    email: user?.email,
+    num: user?.num,
+    image: user?.image,
+    isAdmin: user?.isAdmin,
+    dateOfBirth: user?.dateOfBirth,
+    password: user?.password,
+    address: user?.address,
   });
   const [profileImage, setProfileImage] = useState(null);
   const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
@@ -48,6 +55,29 @@ const ProfilePage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+
+  const handleEditPassword = async () => {
+    try {
+      await userRequest.patch("/user/change-password",{oldPassword, newPassword, repeatNewPassword:newPassword});
+      toast.success('Password updated successfully',{
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      setOpenDialog(false);
+      setOldPassword("");
+      setNewPassword("");
+    } catch (error) {
+      console.log(error);
+      setOldPassword("");
+      setNewPassword("");
+      toast.error('Error updating password', {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+  }
 
   // useEffect(() => {
   //   console.log("Token from Redux:", token); // Affiche le token dans la console
@@ -88,6 +118,13 @@ const ProfilePage = () => {
     localStorage.setItem("profileImage", imageUrl);
   };
 
+  const handleEditProfile = async() => {
+    try {
+      await update(dispatch, profileData);
+    } catch (error) {
+      console.log(error);
+    }
+  }
   // const handleSubmit = async (event) => {
   //   event.preventDefault();
   //   try {
@@ -225,7 +262,7 @@ const ProfilePage = () => {
             variant="outlined"
             margin="normal"
           />
-          <TextField
+          {/* <TextField
             fullWidth
             label="Date of Birth"
             type="date"
@@ -241,24 +278,23 @@ const ProfilePage = () => {
                 visibility: isDateOfBirthFocused ? "visible" : "hidden",
               },
             }}
-          />
+          /> */}
+          
           <TextField
             fullWidth
             label="Email"
             name="email"
+            type="email"
             value={profileData.email}
             onChange={handleProfileDataChange}
-            onFocus={handleEmailFocus}
-            onBlur={handleEmailBlur}
+            // onFocus={handleEmailFocus}
+            // onBlur={handleEmailBlur}
             variant="outlined"
             margin="normal"
-            InputLabelProps={{
-              style: {
-                visibility: isEmailFocused ? "visible" : "hidden",
-              },
-            }}
+          
           />
-          <TextField
+          <Button onClick={handleOpenDialog}>Change Password</Button>
+          {/* <TextField
             fullWidth
             label="Password"
             type={showPassword ? "text" : "password"}
@@ -284,8 +320,8 @@ const ProfilePage = () => {
                     : "hidden",
               },
             }}
-          />
-          <TextField
+          /> */}
+          {/* <TextField
             fullWidth
             label="Access"
             name="isAdmin"
@@ -293,21 +329,11 @@ const ProfilePage = () => {
             onChange={handleProfileDataChange}
             variant="outlined"
             margin="normal"
-          />
-          <TextField
-            fullWidth
-            label="Address"
-            name="address"
-            value={profileData.address}
-            onChange={handleProfileDataChange}
-            variant="outlined"
-            margin="normal"
-            multiline
-            rows={3}
-          />
+          /> */}
+         
 
           <Box display="flex" justifyContent="center">
-            <Button variant="contained" color="primary" type="submit">
+            <Button onClick={handleEditProfile} variant="contained" color="primary">
               Save
             </Button>
           </Box>
@@ -336,12 +362,13 @@ const ProfilePage = () => {
             <Button onClick={handleCloseDialog} color="primary">
               Cancel
             </Button>
-            <Button color="primary">
+            <Button onClick={handleEditPassword} color="primary">
               Save
             </Button>
           </DialogActions>
         </Dialog>
       </ProfilePageContainer>
+      <Toaster />
     </Box>
   );
 };
