@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux"; // 1
+import { useDispatch, useSelector } from "react-redux"; // 1
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -22,6 +22,8 @@ function SignInSide() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  // @ts-ignore
+  const errorMessage = useSelector((state) => state?.user?.error); // 2
 
 
   const handleSubmit = async (/** @type {{ preventDefault: () => void; }} */ event) => {
@@ -138,9 +140,9 @@ function SignInSide() {
                   </Link>
                 </Grid>
               </Grid>
-              {error && (
+              {errorMessage && (
                 <Typography color="error" variant="body2" align="center">
-                  {error}
+                  Invalid email or password
                 </Typography>
               )}
             </Box>

@@ -1,7 +1,7 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { createRoot } from "react-dom/client";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 // Assurez-vous que le chemin vers votre store est correct
 import SignInSide from "./page/auth/SignInSide";
 import SignUp from "./page/auth/SignUp";
@@ -21,23 +21,34 @@ import ReclamationForm from "./page/reclamation/ReclamationForm";
 import { persistor, store } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 
+
+function ProtectedRoute({ children }) {
+  // @ts-ignore
+  const user = useSelector((state) => state.user?.userInfo);
+  console.log(user);
+  return user ? children : <Navigate to="/" />;
+}
+
+// Then use it like this:
 const routes = (
   <Routes>
     <Route path="/" element={<SignInSide />} />
     <Route path="/ResetPasswordForm" element={<ResetPasswordForm />} />
     <Route path="/signup" element={<SignUp />} />
-    <Route path="/home" element={<App />}>
-      <Route index element={<Dashboard />} />
-      <Route path="team" element={<Team />} />
-      <Route path="subscriptions" element={<Subscriptions />} />
-      <Route path="invoices" element={<Invoices />} />
-      <Route path="reclamation" element={<ReclamationForm />} />
-      <Route path="calendar" element={<Calendar />} />
-      <Route path="profile" element={<ProfilePage />} />
-      <Route path="bar" element={<BarChart />} />
-      <Route path="pie" element={<PieChart />} />
-      <Route path="line" element={<LineChart />} />
-      <Route path="*" element={<NotFound />} />
+
+
+    <Route path="/home" element={<ProtectedRoute><App /></ProtectedRoute>}>
+    <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+    <Route path="team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
+    <Route path="subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
+    <Route path="invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
+    <Route path="reclamation" element={<ProtectedRoute><ReclamationForm /></ProtectedRoute>} />
+    <Route path="calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+    <Route path="profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+    <Route path="bar" element={<ProtectedRoute><BarChart /></ProtectedRoute>} />
+    <Route path="pie" element={<ProtectedRoute><PieChart /></ProtectedRoute>} />
+    <Route path="line" element={<ProtectedRoute><LineChart /></ProtectedRoute>} />
+    <Route path="*" element={<NotFound />} />
     </Route>
   </Routes>
 );
@@ -46,8 +57,11 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate persistor={persistor}>
-      <BrowserRouter>{routes}</BrowserRouter>
+        <BrowserRouter>{routes}</BrowserRouter>
       </PersistGate>
     </Provider>
   </React.StrictMode>
 );
+
+
+

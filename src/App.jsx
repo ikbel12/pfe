@@ -25,8 +25,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 export default function MiniDrawer() {
   const [open, setOpen] = React.useState(false);
   // @ts-ignore
-  const user = useSelector((state) => state?.user);
-  console.log(user);
+  const user = useSelector((state) => state?.user?.userInfo);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -53,7 +52,7 @@ export default function MiniDrawer() {
           setMode={setMode}
         />
 
-        <SideBar open={open} handleDrawerClose={handleDrawerClose} />
+        <SideBar open={open} handleDrawerClose={handleDrawerClose} user={user} />
 
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <DrawerHeader />

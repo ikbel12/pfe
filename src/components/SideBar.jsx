@@ -29,6 +29,8 @@ import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import { useLocation, useNavigate } from "react-router-dom";
 import { grey } from "@mui/material/colors";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/apiCalls";
 
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
@@ -114,12 +116,14 @@ const Array3 = [
   { text: "Pie Chart", icon: <PieChartOutlineOutlinedIcon />, path: "pie" },
   { text: "Line Chart", icon: <TimelineOutlinedIcon />, path: "line" },
 ];*/
-const Array4 = [{ text: "logout", icon: <ExitToAppOutlinedIcon />, path: "/" }];
+const Array4 = [{ text: "logout", icon: <ExitToAppOutlinedIcon />, path: "/", function:"logout" }];
 
-const SideBar = ({ open, handleDrawerClose }) => {
+const SideBar = ({ open, handleDrawerClose, user }) => {
+  
   let location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
+  const dispatch = useDispatch();
   return (
     <Drawer variant="permanent" open={open}>
       <DrawerHeader>
@@ -142,13 +146,13 @@ const SideBar = ({ open, handleDrawerClose }) => {
           transition: "0.25s",
         }}
         alt="Remy Sharp"
-        src="/assets/user.jpg"
+        src={user?.image}
       />
       <Typography
         align="center"
         sx={{ fontSize: open ? 17 : 0, transition: "0.25s" }}
       >
-        ikbel Bouzouita
+        {`${user?.prenom} ${user?.nom}`}
       </Typography>
       <Typography
         align="center"
@@ -158,7 +162,7 @@ const SideBar = ({ open, handleDrawerClose }) => {
           color: theme.palette.info.main,
         }}
       >
-        Admin
+        {user?.isAdmin ? "Admin" : "User"}
       </Typography>
 
       <Divider />
@@ -211,6 +215,7 @@ const SideBar = ({ open, handleDrawerClose }) => {
               <ListItemButton
                 onClick={() => {
                   navigate(item.path);
+                  
                 }}
                 sx={{
                   minHeight: 48,
@@ -290,7 +295,10 @@ const SideBar = ({ open, handleDrawerClose }) => {
             <Tooltip title={open ? null : item.text} placement="left">
               <ListItemButton
                 onClick={() => {
-                  navigate(item.path);
+                  // navigate(item.path);
+                  if(item.function=="logout"){
+                    logout(dispatch)
+                  }
                 }}
                 sx={{
                   minHeight: 48,

@@ -1,4 +1,5 @@
-import { publicRequest } from "../requestMethod";
+import toast from "react-hot-toast";
+import { publicRequest,userRequest } from "../requestMethod";
 
 import {
   loginFailed,
@@ -30,16 +31,29 @@ export const logout = async (/** @type {(arg0: { payload: undefined; //   style:
   // });
   type: "user/logoutSuccess"; }) => void} */ dispatch) => {
   dispatch(logoutSuccess());
-  window.location.href = "/sign-in";
+  window.location.href = "/";
 };
 
 export const update = async (/** @type {(arg0: { payload: any; //   style: { background: "red", color: "white" },
    //   style: { background: "red", color: "white" },
   // });
   type: "user/updateInfoSuccess"; }) => void} */ dispatch, /** @type {any} */ user) => {
-  const result = await publicRequest.put("/user/update", user);
-  dispatch(updateInfoSuccess(result.data));
-  window.location.reload();
+  try {
+    const result = await userRequest.patch("/user/update", user);
+    dispatch(updateInfoSuccess(result.data));
+    toast.success("Profile has been updated", {
+      duration: 4000,
+      position: "top-center",
+      style: { background: "green", color: "white" },
+    });
+  } catch (error) {
+    console.log(error);    
+    toast.error("Something went wrong", {
+      duration: 4000,
+      position: "top-center",
+      style: { background: "red", color: "white" },
+    });
+  }
 };
 
 export const deleteAccount = async (/** @type {(arg0: { payload: undefined; //   style: { background: "red", color: "white" },
@@ -49,5 +63,5 @@ export const deleteAccount = async (/** @type {(arg0: { payload: undefined; //  
   const result = await publicRequest.delete("/user/delete/" + user);
   dispatch(logoutSuccess(result.data));
 
-  window.location.href = "/sign-in";
+  window.location.href = "/";
 };
