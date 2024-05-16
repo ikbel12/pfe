@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import {
   Box,
@@ -16,68 +16,87 @@ import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import Header from "../../components/Header";
 import { rows } from "./data";
+import { userRequest } from "../../requestMethod";
+import toast, { Toaster } from "react-hot-toast";
 
 const Subscriptions = () => {
   const theme = useTheme();
-  const [subscriptions, setSubscriptions] = useState(rows);
+  const [subscriptions, setSubscriptions] = useState([
+    {
+      id: "",
+      nom: "",
+      fournisseur: "",
+      date_debut: "",
+      date_fin: "",
+      statut: "",
+    }
+  ]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteSubscriptionId, setDeleteSubscriptionId] = useState(null);
   const [newSubscriptionData, setNewSubscriptionData] = useState({
-    name: "",
-    serviceName: "",
-    supplierName: "",
-    client: "",
-    startDate: "",
-    expiryDate: "",
-    status: "Not expired",
+    nom: "",
+    fournisseur: "",
+    date_debut: "",
+    date_fin: "",
+    statut: "Not expired",
   });
+
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      try {
+        const response = await userRequest.get("/service/getallservices");
+        // setSubscriptions(response.data);
+        console.log(response);
+
+        setSubscriptions(response.data.map((/** @type {{ _id: any; nom: any; fournisseur: any; date_debut: any; date_fin: any; statut: any; }} */ subscription) => ({
+          id: subscription._id,
+          nom: subscription.nom,
+          fournisseur: subscription.fournisseur,
+          date_debut: subscription.date_debut,
+          date_fin: subscription.date_fin,
+          statut: subscription.statut,
+        })));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchSubscriptions();
+  }, []);
 
   const columns = [
     { field: "id", headerName: "ID", width: 100 },
     {
-      field: "name",
+      field: "nom",
       headerName: "Subscription Name",
       flex: 1,
       cellClassName: "name-column--cell",
     },
     {
-      field: "serviceName",
-      headerName: "Service Name",
-      flex: 1,
-      cellClassName: "name-column--cell",
-    },
-    {
-      field: "supplierName",
+      field: "fournisseur",
       headerName: "Supplier Name",
       flex: 1,
       cellClassName: "name-column--cell",
     },
     {
-      field: "client",
-      headerName: "Client",
-      flex: 1,
-      cellClassName: "name-column--cell",
-    },
-    {
-      field: "startDate",
+      field: "date_debut",
       headerName: "Start date",
       headerAlign: "left",
       align: "left",
       width: 120,
     },
     {
-      field: "expiryDate",
+      field: "date_fin",
       headerName: "Expiry Date",
       headerAlign: "left",
       align: "left",
       width: 120,
     },
     {
-      field: "status",
+      field: "statut",
       headerName: "Status",
       flex: 1,
-      renderCell: ({ row: { status } }) => (
+      renderCell: ({ row: { statut } }) => (
         <Box
           sx={{
             p: "5px",
@@ -89,21 +108,21 @@ const Subscriptions = () => {
             alignItems: "center",
             mt: 1,
             backgroundColor:
-              status === "Expired"
+              statut === "Expired"
                 ? theme.palette.error.main // Red for Expired
-                : status === "Not expired"
-                ? theme.palette.success.main // Green for Not expired
-                : "#3da58a",
+                : statut === "Not expired"
+                  ? theme.palette.success.main // Green for Not expired
+                  : "#3da58a",
           }}
         >
-          {status === "Expired" && (
+          {statut === "Expired" && (
             <WarningAmberOutlinedIcon sx={{ color: "#fff" }} fontSize="small" />
           )}
-          {status === "Not expired" && (
+          {statut === "Not expired" && (
             <GppGoodOutlinedIcon sx={{ color: "#fff" }} fontSize="small" />
           )}
           <Typography sx={{ fontSize: "13px", color: "#fff" }}>
-            {status}
+            {statut}
           </Typography>
         </Box>
       ),
@@ -135,22 +154,34 @@ const Subscriptions = () => {
     },
   ];
 
-  const handleAddSubscription = () => {
-    const newSubscription = {
-      id: subscriptions.length + 1,
-      ...newSubscriptionData,
-    };
-    setSubscriptions([...subscriptions, newSubscription]);
-    setOpenDialog(false);
-    setNewSubscriptionData({
-      name: "",
-      serviceName: "",
-      supplierName: "",
-      client: "",
-      startDate: "",
-      expiryDate: "",
-      status: "Not expired",
-    });
+  const handleAddSubscription = async () => {
+    try {
+      const response = await userRequest.post("/service/create", newSubscriptionData);
+      setSubscriptions([
+        ...subscriptions,
+        {
+          id: response.data._id,
+          nom: response.data.nom,
+          fournisseur: response.data.fournisseur,
+          date_debut: response.data.date_debut,
+          date_fin: response.data.date_fin,
+          statut: response.data.statut,
+        },
+      ]);
+      setOpenDialog(false);
+      toast.success("Subscription added successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to add subscription", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
   };
 
   const handleDeleteClick = (id) => {
@@ -158,13 +189,24 @@ const Subscriptions = () => {
     setOpenConfirmDialog(true);
   };
 
-  const handleConfirmDelete = () => {
-    setSubscriptions(
-      subscriptions.filter(
-        (subscription) => subscription.id !== deleteSubscriptionId
-      )
-    );
-    setOpenConfirmDialog(false);
+  const handleConfirmDelete = async () => {
+    try {
+      await userRequest.delete(`/service/deleteservices/${deleteSubscriptionId}`);
+      setOpenConfirmDialog(false);
+      toast.success("Subscription deleted successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      setSubscriptions(subscriptions.filter((subscription) => subscription.id !== deleteSubscriptionId));
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to delete subscription", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
   };
 
   const handleCancelDelete = () => {
@@ -174,6 +216,7 @@ const Subscriptions = () => {
 
   return (
     <Box>
+      <Toaster />
       <Header title="Subscriptions" subTitle="List of CLOUD Subscriptions" />
       <Box
         sx={{
@@ -205,28 +248,16 @@ const Subscriptions = () => {
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Add New Subscription</DialogTitle>
         <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Subscription Name"
-            fullWidth
-            value={newSubscriptionData.name}
-            onChange={(e) =>
-              setNewSubscriptionData({
-                ...newSubscriptionData,
-                name: e.target.value,
-              })
-            }
-          />
+
           <TextField
             margin="dense"
             label="Service Name"
             fullWidth
-            value={newSubscriptionData.serviceName}
+            value={newSubscriptionData.nom}
             onChange={(e) =>
               setNewSubscriptionData({
                 ...newSubscriptionData,
-                serviceName: e.target.value,
+                nom: e.target.value,
               })
             }
           />
@@ -234,37 +265,26 @@ const Subscriptions = () => {
             margin="dense"
             label="Supplier Name"
             fullWidth
-            value={newSubscriptionData.supplierName}
+            value={newSubscriptionData.fournisseur}
             onChange={(e) =>
               setNewSubscriptionData({
                 ...newSubscriptionData,
-                supplierName: e.target.value,
+                fournisseur: e.target.value,
               })
             }
           />
-          <TextField
-            margin="dense"
-            label="Client"
-            fullWidth
-            value={newSubscriptionData.client}
-            onChange={(e) =>
-              setNewSubscriptionData({
-                ...newSubscriptionData,
-                client: e.target.value,
-              })
-            }
-          />
+
           <TextField
             margin="dense"
             label="Start Date"
             type="date"
             fullWidth
             InputLabelProps={{ shrink: true }}
-            value={newSubscriptionData.startDate}
+            value={newSubscriptionData.date_debut}
             onChange={(e) =>
               setNewSubscriptionData({
                 ...newSubscriptionData,
-                startDate: e.target.value,
+                date_debut: e.target.value,
               })
             }
           />
@@ -274,11 +294,11 @@ const Subscriptions = () => {
             type="date"
             fullWidth
             InputLabelProps={{ shrink: true }}
-            value={newSubscriptionData.expiryDate}
+            value={newSubscriptionData.date_fin}
             onChange={(e) =>
               setNewSubscriptionData({
                 ...newSubscriptionData,
-                expiryDate: e.target.value,
+                date_fin: e.target.value,
               })
             }
           />

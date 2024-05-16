@@ -15,6 +15,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { login } from "../../redux/apiCalls";
+import { Toaster } from "react-hot-toast";
 
 function SignInSide() {
   const navigate = useNavigate();
@@ -140,15 +141,16 @@ function SignInSide() {
                   </Link>
                 </Grid>
               </Grid>
-              {errorMessage && (
+              {/* {errorMessage && (
                 <Typography color="error" variant="body2" align="center">
                   Invalid email or password
                 </Typography>
-              )}
+              )} */}
             </Box>
           </Box>
         </Grid>
       </Grid>
+      <Toaster />
     </ThemeProvider>
   );
 }

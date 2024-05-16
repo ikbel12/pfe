@@ -18,11 +18,11 @@ export const login = async (/** @type {(arg0: { payload: any; type: "user/loginS
     window.location.href = "/home";
   } catch (error) {
     dispatch(loginFailed());
-    // toast.error("Invalid Email or Password", {
-    //   duration: 4000,
-    //   position: "top-center",
-    //   style: { background: "red", color: "white" },
-    // });
+    toast.error("Invalid Email or Password", {
+      duration: 4000,
+      position: "top-center",
+      style: { background: "red", color: "white" },
+    });
   }
 };
 

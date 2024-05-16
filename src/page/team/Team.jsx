@@ -19,6 +19,8 @@ import {
 } from "@mui/icons-material";
 import Header from "../../components/Header";
 import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
+
 
 const Team = () => {
   const theme = useTheme();
@@ -32,6 +34,7 @@ const Team = () => {
     password: "",
     isAdmin: false,
   });
+
 
   const columns = useMemo(
     () => [
@@ -179,11 +182,17 @@ const Team = () => {
       fetchUsers();
     } catch (error) {
       console.error("Error adding user:", error);
+      toast.error(error.response.data, {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
     }
   };
 
   return (
     <Box>
+      <Toaster />!
       <Box
         sx={{
           display: "flex",
