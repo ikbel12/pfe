@@ -20,7 +20,7 @@ import Subscriptions from "./page/subscriptions/Subscriptions";
 import ReclamationForm from "./page/reclamation/ReclamationForm";
 import { persistor, store } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
-
+import SettingAlert from "./page/settingalert/SettingAlert";
 
 function ProtectedRoute({ children }) {
   // @ts-ignore
@@ -36,19 +36,103 @@ const routes = (
     <Route path="/ResetPasswordForm" element={<ResetPasswordForm />} />
     <Route path="/signup" element={<SignUp />} />
 
-
-    <Route path="/home" element={<ProtectedRoute><App /></ProtectedRoute>}>
-    <Route index element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-    <Route path="team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
-    <Route path="subscriptions" element={<ProtectedRoute><Subscriptions /></ProtectedRoute>} />
-    <Route path="invoices" element={<ProtectedRoute><Invoices /></ProtectedRoute>} />
-    <Route path="reclamation" element={<ProtectedRoute><ReclamationForm /></ProtectedRoute>} />
-    <Route path="calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
-    <Route path="profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-    <Route path="bar" element={<ProtectedRoute><BarChart /></ProtectedRoute>} />
-    <Route path="pie" element={<ProtectedRoute><PieChart /></ProtectedRoute>} />
-    <Route path="line" element={<ProtectedRoute><LineChart /></ProtectedRoute>} />
-    <Route path="*" element={<NotFound />} />
+    <Route
+      path="/home"
+      element={
+        <ProtectedRoute>
+          <App />
+        </ProtectedRoute>
+      }
+    >
+      <Route
+        index
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="team"
+        element={
+          <ProtectedRoute>
+            <Team />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="alertsetting"
+        element={
+          <ProtectedRoute>
+            <SettingAlert />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="subscriptions"
+        element={
+          <ProtectedRoute>
+            <Subscriptions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="invoices"
+        element={
+          <ProtectedRoute>
+            <Invoices />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="reclamation"
+        element={
+          <ProtectedRoute>
+            <ReclamationForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="calendar"
+        element={
+          <ProtectedRoute>
+            <Calendar />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="bar"
+        element={
+          <ProtectedRoute>
+            <BarChart />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="pie"
+        element={
+          <ProtectedRoute>
+            <PieChart />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="line"
+        element={
+          <ProtectedRoute>
+            <LineChart />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<NotFound />} />
     </Route>
   </Routes>
 );
@@ -62,6 +146,3 @@ createRoot(document.getElementById("root")).render(
     </Provider>
   </React.StrictMode>
 );
-
-
-

@@ -29,6 +29,7 @@ const Team = () => {
     nom: "",
     email: "",
     num: "",
+    password: "",
     isAdmin: false,
   });
 
@@ -40,7 +41,7 @@ const Team = () => {
         width: 100,
         align: "left",
         headerAlign: "left",
-        flex: 0.70,
+        flex: 0.7,
       },
       {
         field: "prenom",
@@ -74,7 +75,7 @@ const Team = () => {
         // hedhy mtaa role isAdmin kanou admin yodher bel mauve ken user azrek
         field: "isAdmin",
         headerName: "Access",
-        flex:0.5,
+        flex: 0.5,
         align: "left",
         headerAlign: "left",
         renderCell: ({ row }) => {
@@ -136,7 +137,7 @@ const Team = () => {
     ],
     [theme.palette.primary.dark]
   );
-  // fonction delete rbatha bel bouton delete w temshy rekha
+
   const handleDeleteUser = async (id) => {
     try {
       await axios.delete(`http://localhost:3000/api/user/${id}`);
@@ -145,7 +146,7 @@ const Team = () => {
       console.error("Error deleting user:", error);
     }
   };
-  // hedhy eli tjiblik les donnes mtaa laabed el kol
+
   const fetchUsers = async () => {
     try {
       const response = await axios.get(
@@ -160,7 +161,7 @@ const Team = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
-  // hedhy mtaa create user bouton faama mocchkla fel rolee hata ki nddakhel bel postmen mesh kaada tarkah
+
   const handleAddUser = async () => {
     try {
       await axios.post("http://localhost:3000/api/auth/register", newUserData);
@@ -171,6 +172,7 @@ const Team = () => {
         nom: "",
         email: "",
         num: "",
+        password: "",
         isAdmin: false,
       });
 
@@ -249,6 +251,16 @@ const Team = () => {
             value={newUserData.num}
             onChange={(e) =>
               setNewUserData({ ...newUserData, num: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Password"
+            type="password"
+            fullWidth
+            value={newUserData.password}
+            onChange={(e) =>
+              setNewUserData({ ...newUserData, password: e.target.value })
             }
           />
           <TextField

@@ -3,18 +3,15 @@ import {
   IconButton,
   Stack,
   Toolbar,
-  Typography,
   styled,
   useTheme,
 } from "@mui/material";
 import React from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import MuiAppBar from "@mui/material/AppBar";
-import Person2OutlinedIcon from "@mui/icons-material/Person2Outlined";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 
 const drawerWidth = 240;
 
@@ -65,7 +62,6 @@ const TopBar = ({ open, handleDrawerOpen, setMode }) => {
           {theme.palette.mode === "light" ? (
             <IconButton
               onClick={() => {
-                // besh ki yaaml refresh el usser yokod el mode eeli howa akhtarou kifesh local sorage takhouu 9arar el usser ki yenzel al bouton w tkhaznou w tkhalih aala nafs el mode
                 localStorage.setItem(
                   "currentMode",
                   theme.palette.mode === "dark" ? "light" : "dark"
@@ -97,14 +93,6 @@ const TopBar = ({ open, handleDrawerOpen, setMode }) => {
 
           <IconButton color="inherit">
             <NotificationsOutlinedIcon />
-          </IconButton>
-
-          <IconButton color="inherit">
-            <SettingsOutlinedIcon />
-          </IconButton>
-
-          <IconButton color="inherit">
-            <Person2OutlinedIcon />
           </IconButton>
         </Stack>
       </Toolbar>

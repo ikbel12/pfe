@@ -26,7 +26,7 @@ import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutl
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
+import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { useLocation, useNavigate } from "react-router-dom";
 import { grey } from "@mui/material/colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -90,6 +90,11 @@ const Array1 = [
     path: "subscriptions",
   },
   {
+    text: "Setting Alert",
+    icon: <CalendarMonthOutlinedIcon />,
+    path: "alertsetting",
+  },
+  {
     text: "Invoices Balances",
     icon: <ReceiptOutlinedIcon />,
     path: "invoices",
@@ -116,10 +121,16 @@ const Array3 = [
   { text: "Pie Chart", icon: <PieChartOutlineOutlinedIcon />, path: "pie" },
   { text: "Line Chart", icon: <TimelineOutlinedIcon />, path: "line" },
 ];*/
-const Array4 = [{ text: "logout", icon: <ExitToAppOutlinedIcon />, path: "/", function:"logout" }];
+const Array4 = [
+  {
+    text: "logout",
+    icon: <ExitToAppOutlinedIcon />,
+    path: "/",
+    function: "logout",
+  },
+];
 
 const SideBar = ({ open, handleDrawerClose, user }) => {
-  
   let location = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -215,7 +226,6 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
               <ListItemButton
                 onClick={() => {
                   navigate(item.path);
-                  
                 }}
                 sx={{
                   minHeight: 48,
@@ -296,8 +306,8 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
               <ListItemButton
                 onClick={() => {
                   // navigate(item.path);
-                  if(item.function=="logout"){
-                    logout(dispatch)
+                  if (item.function == "logout") {
+                    logout(dispatch);
                   }
                 }}
                 sx={{
