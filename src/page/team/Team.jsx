@@ -21,7 +21,6 @@ import Header from "../../components/Header";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-
 const Team = () => {
   const theme = useTheme();
   const [users, setUsers] = useState([]);
@@ -34,7 +33,6 @@ const Team = () => {
     password: "",
     isAdmin: false,
   });
-
 
   const columns = useMemo(
     () => [
@@ -192,7 +190,7 @@ const Team = () => {
 
   return (
     <Box>
-      <Toaster />!
+      <Toaster />
       <Box
         sx={{
           display: "flex",

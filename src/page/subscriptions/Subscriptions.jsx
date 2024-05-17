@@ -15,7 +15,6 @@ import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import Header from "../../components/Header";
-import { rows } from "./data";
 import { userRequest } from "../../requestMethod";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -29,7 +28,7 @@ const Subscriptions = () => {
       date_debut: "",
       date_fin: "",
       statut: "",
-    }
+    },
   ]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -49,14 +48,20 @@ const Subscriptions = () => {
         // setSubscriptions(response.data);
         console.log(response);
 
-        setSubscriptions(response.data.map((/** @type {{ _id: any; nom: any; fournisseur: any; date_debut: any; date_fin: any; statut: any; }} */ subscription) => ({
-          id: subscription._id,
-          nom: subscription.nom,
-          fournisseur: subscription.fournisseur,
-          date_debut: subscription.date_debut,
-          date_fin: subscription.date_fin,
-          statut: subscription.statut,
-        })));
+        setSubscriptions(
+          response.data.map(
+            (
+              /** @type {{ _id: any; nom: any; fournisseur: any; date_debut: any; date_fin: any; statut: any; }} */ subscription
+            ) => ({
+              id: subscription._id,
+              nom: subscription.nom,
+              fournisseur: subscription.fournisseur,
+              date_debut: subscription.date_debut,
+              date_fin: subscription.date_fin,
+              statut: subscription.statut,
+            })
+          )
+        );
       } catch (error) {
         console.log(error);
       }
@@ -65,17 +70,17 @@ const Subscriptions = () => {
   }, []);
 
   const columns = [
-    { field: "id", headerName: "ID", width: 100 },
+    { field: "id", headerName: "ID", width: 100 , flex: 0.7},
     {
       field: "nom",
       headerName: "Subscription Name",
-      flex: 1,
+      flex:0.7,
       cellClassName: "name-column--cell",
     },
     {
       field: "fournisseur",
       headerName: "Supplier Name",
-      flex: 1,
+      flex: 0.5,
       cellClassName: "name-column--cell",
     },
     {
@@ -83,19 +88,21 @@ const Subscriptions = () => {
       headerName: "Start date",
       headerAlign: "left",
       align: "left",
+      flex: 0.7,
       width: 120,
     },
     {
       field: "date_fin",
       headerName: "Expiry Date",
       headerAlign: "left",
+      flex: 0.7,
       align: "left",
       width: 120,
     },
     {
       field: "statut",
       headerName: "Status",
-      flex: 1,
+      flex: 0.3,
       renderCell: ({ row: { statut } }) => (
         <Box
           sx={{
@@ -111,8 +118,8 @@ const Subscriptions = () => {
               statut === "Expired"
                 ? theme.palette.error.main // Red for Expired
                 : statut === "Not expired"
-                  ? theme.palette.success.main // Green for Not expired
-                  : "#3da58a",
+                ? theme.palette.success.main // Green for Not expired
+                : "#3da58a",
           }}
         >
           {statut === "Expired" && (
@@ -156,7 +163,10 @@ const Subscriptions = () => {
 
   const handleAddSubscription = async () => {
     try {
-      const response = await userRequest.post("/service/create", newSubscriptionData);
+      const response = await userRequest.post(
+        "/service/create",
+        newSubscriptionData
+      );
       setSubscriptions([
         ...subscriptions,
         {
@@ -191,14 +201,20 @@ const Subscriptions = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      await userRequest.delete(`/service/deleteservices/${deleteSubscriptionId}`);
+      await userRequest.delete(
+        `/service/deleteservices/${deleteSubscriptionId}`
+      );
       setOpenConfirmDialog(false);
       toast.success("Subscription deleted successfully", {
         duration: 4000,
         position: "top-center",
         style: { background: "green", color: "white" },
       });
-      setSubscriptions(subscriptions.filter((subscription) => subscription.id !== deleteSubscriptionId));
+      setSubscriptions(
+        subscriptions.filter(
+          (subscription) => subscription.id !== deleteSubscriptionId
+        )
+      );
     } catch (error) {
       console.log(error);
       toast.error("Failed to delete subscription", {
@@ -248,7 +264,6 @@ const Subscriptions = () => {
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Add New Subscription</DialogTitle>
         <DialogContent>
-
           <TextField
             margin="dense"
             label="Service Name"

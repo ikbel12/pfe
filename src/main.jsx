@@ -9,7 +9,6 @@ import App from "./App";
 import Dashboard from "./page/dashboard/Dashboard";
 import Team from "./page/team/Team";
 import Invoices from "./page/invoices/Invoices";
-import Calendar from "./page/calendar/Calendar";
 import BarChart from "./page/barChart/BarChart";
 import PieChart from "./page/pieChart/PieChart";
 import LineChart from "./page/lineChart/LineChart";
@@ -89,14 +88,6 @@ const routes = (
         element={
           <ProtectedRoute>
             <ReclamationForm />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="calendar"
-        element={
-          <ProtectedRoute>
-            <Calendar />
           </ProtectedRoute>
         }
       />

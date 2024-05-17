@@ -113,7 +113,6 @@ const Array2 = [
     icon: <ReportProblemOutlinedIcon />,
     path: "reclamation",
   },
-  { text: "Calendar", icon: <CalendarTodayOutlinedIcon />, path: "calendar" },
 ];
 /*
 const Array3 = [

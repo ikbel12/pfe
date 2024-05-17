@@ -1,46 +1,34 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-import { Alert, Button, MenuItem, Snackbar, Stack } from "@mui/material";
+import {
+  Button,
+  Snackbar,
+  Typography,
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+} from "@mui/material";
 import { useForm } from "react-hook-form";
 import Header from "../../components/Header";
-
-const regEmail =
-  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-const phoneRegExp =
-  /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
-
-const data = [
-  {
-    value: "Admin",
-    label: "Admin",
-  },
-  {
-    value: "Manger",
-    label: "Manger",
-  },
-  {
-    value: "User",
-    label: "User",
-  },
-];
 
 const ReclamationForm = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm();
 
   const [open, setOpen] = React.useState(false);
+  const [openDialog, setOpenDialog] = React.useState(false);
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
     }
-
     setOpen(false);
   };
 
@@ -50,117 +38,153 @@ const ReclamationForm = () => {
 
   const onSubmit = () => {
     console.log("doneeeeeeeeeeee");
-
     handleClick();
   };
 
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleConfirm = () => {
+    onSubmit();
+    setOpenDialog(false);
+  };
+
+  // Sample data for reclamations
+  const reclamations = [
+    { id: 1, name: "Reclamation 1", date: "2024-05-17" },
+    { id: 2, name: "Reclamation 2", date: "2024-05-16" },
+    { id: 3, name: "Reclamation 3", date: "2024-05-15" },
+    { id: 1, name: "Reclamation 1", date: "2024-05-17" },
+    { id: 2, name: "Reclamation 2", date: "2024-05-16" },
+    { id: 3, name: "Reclamation 3", date: "2024-05-15" },
+    { id: 1, name: "Reclamation 1", date: "2024-05-17" },
+    { id: 2, name: "Reclamation 2", date: "2024-05-16" },
+    { id: 1, name: "Reclamation 1", date: "2024-05-17" },
+  ];
+
   return (
     <Box>
-      <Header title="CREATE RECLAMTION " subTitle="Create a reclamation here" />
-
-      <Box
-        onSubmit={handleSubmit(onSubmit)}
-        component="form"
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 3,
-        }}
-        noValidate
-        autoComplete="off"
-      >
-        <Stack sx={{ gap: 2 }} direction={"row"}>
-          <TextField
-            error={Boolean(errors.firstName)}
-            helperText={
-              Boolean(errors.firstName)
-                ? "This field is required & min 3 character"
-                : null
-            }
-            {...register("firstName", { required: true, minLength: 3 })}
-            sx={{ flex: 1 }}
-            label="First Name"
-            variant="filled"
-          />
-
-          <TextField
-            error={Boolean(errors.lastName)}
-            helperText={
-              Boolean(errors.lastName)
-                ? "This field is required & min 3 character"
-                : null
-            }
-            {...register("lastName", { required: true, minLength: 3 })}
-            sx={{ flex: 1 }}
-            label="Last Name"
-            variant="filled"
-          />
-        </Stack>
-
-        <TextField
-          error={Boolean(errors.email)}
-          helperText={
-            Boolean(errors.email)
-              ? "Please provide a valid email address"
-              : null
-          }
-          {...register("email", { required: true, pattern: regEmail })}
-          label="Email"
-          variant="filled"
-        />
-
-        <TextField
-          error={Boolean(errors.ContactNumber)}
-          helperText={
-            Boolean(errors.ContactNumber)
-              ? "Please provide a valid Phone number"
-              : null
-          }
-          {...register("ContactNumber", {
-            required: true,
-            pattern: phoneRegExp,
-          })}
-          label="Contact Number"
-          variant="filled"
-        />
-        <TextField label="Adress 1" variant="filled" />
-        <TextField label="Adress 2" variant="filled" />
-
-        <TextField
-          variant="filled"
-          id="outlined-select-currency"
-          select
-          label="Role"
-          defaultValue="User"
-        >
-          {data.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <Box sx={{ textAlign: "right" }}>
-          <Button
-            type="submit"
-            sx={{ textTransform: "capitalize" }}
-            variant="contained"
+      <Header title="CREATE RECLAMATION" subTitle="Create a new reclamation" />
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={5}>
+          {/* Affichage des réclamations */}
+          <Box
+            sx={{
+              border: "1px solid #ccc",
+              borderRadius: 4,
+              padding: 2,
+              maxHeight: 600,
+              overflowY: "auto",
+            }}
           >
-            Create New User
-          </Button>
-
-          <Snackbar
-            anchorOrigin={{ vertical: "top", horizontal: "right" }}
-            open={open}
-            autoHideDuration={3000}
-            onClose={handleClose}
+            <Typography variant="h6" gutterBottom>
+              Your Previous Reclamations
+            </Typography>
+            <Box>
+              {reclamations.map((reclamation) => (
+                <Box key={reclamation.id} sx={{ marginBottom: 1 }}>
+                  <Typography variant="subtitle1">
+                    {reclamation.name}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {reclamation.date}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={7}>
+          {/* Formulaire de création de réclamation */}
+          <Box
+            component="form"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 3,
+              margin: 0, // Supprimer la marge
+              padding: 2,
+              border: "1px solid #ccc",
+              borderRadius: 4,
+              height: "100%",
+            }}
+            onSubmit={handleSubmit(onSubmit)}
+            noValidate
+            autoComplete="off"
           >
-            <Alert onClose={handleClose} severity="info" sx={{ width: "100%" }}>
-              Account created successfully
-            </Alert>
-          </Snackbar>
-        </Box>
-      </Box>
+            <TextField
+              {...register("firstName", { required: true, minLength: 3 })}
+              label="First Name"
+              variant="outlined"
+            />
+
+            <TextField
+              {...register("lastName", { required: true, minLength: 3 })}
+              label="Last Name"
+              variant="outlined"
+            />
+
+            <TextField
+              label="Title"
+              variant="outlined"
+              sx={{ width: "100%" }}
+            />
+
+            <TextField
+              multiline
+              rows={4}
+              label="Description"
+              variant="outlined"
+              sx={{ width: "100%" }}
+            />
+
+            <TextField
+              id="date"
+              label="Date of Creation"
+              type="date"
+              defaultValue={new Date().toISOString().split("T")[0]}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              variant="outlined"
+              sx={{ width: "100%" }}
+            />
+
+            <Box sx={{ textAlign: "right" }}>
+              <Button
+                type="button"
+                variant="contained"
+                sx={{ textTransform: "capitalize", marginRight: 1 }}
+                onClick={handleOpenDialog}
+              >
+                Create New Reclamation
+              </Button>
+
+              <Dialog open={openDialog} onClose={handleCloseDialog}>
+                <DialogTitle>
+                  Are you sure about the content of reclamation?
+                </DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Click Confirm to submit the reclamation.
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={handleCloseDialog}>Cancel</Button>
+                  <Button onClick={handleConfirm} autoFocus>
+                    Confirm
+                  </Button>
+                </DialogActions>
+              </Dialog>
+            </Box>
+          </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
 };
