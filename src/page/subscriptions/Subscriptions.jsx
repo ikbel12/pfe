@@ -115,14 +115,14 @@ const Subscriptions = () => {
             alignItems: "center",
             mt: 1,
             backgroundColor:
-              statut === "Expired"
+              statut === "expired"
                 ? theme.palette.error.main // Red for Expired
                 : statut === "Not expired"
                 ? theme.palette.success.main // Green for Not expired
                 : "#3da58a",
           }}
         >
-          {statut === "Expired" && (
+          {statut === "expired" && (
             <WarningAmberOutlinedIcon sx={{ color: "#fff" }} fontSize="small" />
           )}
           {statut === "Not expired" && (

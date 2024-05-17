@@ -18,19 +18,26 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import Header from "../../components/Header";
+import { userRequest } from "../../requestMethod";
+import { useSelector } from "react-redux";
+import toast, { Toaster } from "react-hot-toast";
 
 const SettingAlert = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedService, setSelectedService] = useState("");
   const [open, setOpen] = useState(false);
   const [confirm, setConfirm] = useState(false);
-
+  const [days, setDays] = useState(null);
+  const [globalDays, setGlobalDays] = useState(null);
+  // @ts-ignore
+  const user = useSelector((state) => state.user.userInfo);
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "http://localhost:3000/api/service/getallservices"
+        const response = await userRequest.get(
+          "/service/getallservices"
         );
         setServices(response.data);
         setLoading(false);
@@ -43,36 +50,75 @@ const SettingAlert = () => {
     fetchData();
   }, []);
 
-  const handleConfirmOpen = () => {
-    setOpen(true);
-  };
+
+
 
   const handleConfirmClose = () => {
     setOpen(false);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async() => {
     setConfirm(true);
     setOpen(false);
+    try {
+      const response = await userRequest.post(`/settings/${user._id}`, {
+        globalNotificationDays: globalDays,
+        customNotifications:[]
+      });
+      toast.success(response.data.message, {
+        duration: 4000,
+        position: "top-right",
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Error setting alert", {
+        duration: 4000,
+        position: "top-right",
+      });
+    }
   };
 
   const handleCancel = () => {
     setConfirm(false);
     handleConfirmClose(); // Ferme la boîte de dialogue lorsque Cancel est cliqué
   };
-
-  const handleSubmit = () => {
-    console.log("Changes saved successfully");
+  const handleConfirmOpen = () => {
+    setOpen(true);
+  };
+  console.log(days);
+  const handleSubmit = async () => {
     handleConfirmClose();
+    try {
+      const response = await userRequest.post(`/settings/${user._id}`, {
+        customNotifications: [
+          {
+            serviceId: selectedService,
+            notificationDays: days
+          }
+        ]
+
+      });
+      toast.success(response.data.message, {
+        duration: 4000,
+        position: "top-right",
+      });
+    } catch (error) {
+      console.error("Error setting alert:", error);
+      toast.error("Error setting alert", {
+        duration: 4000,
+        position: "top-right",
+      });
+    }
   };
 
   return (
     <Box>
+      <Toaster />
       <Header
         title="Customize Your Alert"
         subTitle="Adjust your alert settings here"
       />
-      <Box sx={{ padding: 0.5}}></Box>
+      <Box sx={{ padding: 0.5 }}></Box>
       <Card variant="outlined" sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="body1" gutterBottom>
@@ -82,6 +128,8 @@ const SettingAlert = () => {
           <TextField
             label="Number of days after which you will receive your global alert:"
             variant="filled"
+            value={globalDays}
+            onChange={e => setGlobalDays(e.target.value)}
             fullWidth
             sx={{ mb: 3 }}
           />
@@ -106,6 +154,10 @@ const SettingAlert = () => {
               label: service.nom,
               value: service._id, // ou tout autre identifiant unique si nécessaire
             }))}
+            onChange={(event, newValue) => {
+              setSelectedService(newValue.value);
+            }
+            }
             loading={loading}
             renderInput={(params) => (
               <TextField
@@ -121,6 +173,8 @@ const SettingAlert = () => {
           <TextField
             label="Number of days after which you will receive your alert:"
             variant="filled"
+            value={days}
+            onChange={e => setDays(e.target.value)}
             fullWidth
             sx={{ mb: 3 }}
           />
@@ -138,20 +192,7 @@ const SettingAlert = () => {
         </CardContent>
       </Card>
 
-      <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        open={open}
-        autoHideDuration={3000}
-        onClose={handleConfirmClose}
-      >
-        <Typography
-          variant="body1"
-          gutterBottom
-          sx={{ backgroundColor: "#2196F3", color: "white", p: 2 }}
-        >
-          {confirm ? "Changes saved successfully" : "Canceled!"}
-        </Typography>
-      </Snackbar>
+
 
       <Dialog
         open={open}

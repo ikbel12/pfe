@@ -1,17 +1,23 @@
 import {
+  Badge,
   Box,
+  Button,
   IconButton,
+  Menu,
+  MenuItem,
   Stack,
   Toolbar,
   styled,
   useTheme,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import MuiAppBar from "@mui/material/AppBar";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
+import { userRequest } from "../requestMethod";
+import { useSelector } from "react-redux";
 
 const drawerWidth = 240;
 
@@ -36,6 +42,44 @@ const AppBar = styled(MuiAppBar, {
 
 const TopBar = ({ open, handleDrawerOpen, setMode }) => {
   const theme = useTheme();
+  const [notification, setNotification] = React.useState([]);
+  const [notifCount, setNotifCount] = React.useState([]);
+  // @ts-ignore
+  const user = useSelector((state) => state.user.userInfo);
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const openNotif = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const fetchNotification = async () => {
+    try {
+      // Fetch notification data
+      const response = await userRequest.get("/alerte/user");
+      
+      setNotification(response.data.alertes);
+      setNotifCount(response.data.unreadAlertes);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  useEffect(() => {
+    fetchNotification();
+  }, []);
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      // Mark notification as read
+      await userRequest.put(`/alerte/${id}/read`);
+      fetchNotification();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <AppBar
       position="fixed"
@@ -90,10 +134,37 @@ const TopBar = ({ open, handleDrawerOpen, setMode }) => {
               <DarkModeOutlinedIcon />
             </IconButton>
           )}
-
-          <IconButton color="inherit">
+    <Badge badgeContent={notifCount.length} color="error">
+          <IconButton
+            id="demo-positioned-button"
+            aria-haspopup="true"
+            onClick={handleClick}
+            color="inherit">
             <NotificationsOutlinedIcon />
           </IconButton>
+          </Badge>
+          <Menu
+            id="demo-positioned-menu"
+            aria-labelledby="demo-positioned-button"
+            anchorEl={anchorEl}
+            open={openNotif}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
+          >
+            {notification.map((notif) => (
+              <MenuItem key={notif.id} onClick={handleClose}>
+                {notif.message} {notif.statut === "unread" && <Button variant="contained" color="primary" size="small" onClick={() => handleMarkAsRead(notif._id)}>Mark as read</Button>}
+              </MenuItem>
+            ))}
+            {notification.length === 0 && <MenuItem onClick={handleClose}>No notification</MenuItem>}
+          </Menu>
         </Stack>
       </Toolbar>
     </AppBar>
@@ -101,3 +172,4 @@ const TopBar = ({ open, handleDrawerOpen, setMode }) => {
 };
 
 export default TopBar;
+
