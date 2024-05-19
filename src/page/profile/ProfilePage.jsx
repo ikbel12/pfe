@@ -36,6 +36,16 @@ const ProfilePage = () => {
   // @ts-ignore
   const user = useSelector((state) => state?.user?.userInfo);
   const dispatch = useDispatch();
+ 
+  const [profileImage, setProfileImage] = useState(user?.image);
+  const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+
   const [profileData, setProfileData] = useState({
     nom: user?.nom,
     prenom: user?.prenom,
@@ -47,14 +57,6 @@ const ProfilePage = () => {
     password: user?.password,
     address: user?.address,
   });
-  const [profileImage, setProfileImage] = useState(null);
-  const [isDateOfBirthFocused, setIsDateOfBirthFocused] = useState(false);
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
 
   const handleEditPassword = async () => {
     try {
@@ -120,7 +122,7 @@ const ProfilePage = () => {
 
   const handleEditProfile = async() => {
     try {
-      await update(dispatch, profileData);
+      await update(dispatch, profileData, profileImage);
     } catch (error) {
       console.log(error);
     }

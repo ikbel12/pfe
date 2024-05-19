@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-import { publicRequest,userRequest } from "../requestMethod";
+import { publicRequest, userRequest } from "../requestMethod";
 
 import {
   loginFailed,
@@ -37,9 +37,20 @@ export const logout = async (/** @type {(arg0: { payload: undefined; //   style:
 export const update = async (/** @type {(arg0: { payload: any; //   style: { background: "red", color: "white" },
    //   style: { background: "red", color: "white" },
   // });
-  type: "user/updateInfoSuccess"; }) => void} */ dispatch, /** @type {any} */ user) => {
+  type: "user/updateInfoSuccess"; }) => void} */ dispatch, /** @type {any} */ user, profileImage) => {
   try {
-    const result = await userRequest.patch("/user/update", user);
+    const formData = new FormData();
+    formData.append("image", profileImage);
+    formData.append("nom",user.nom);
+    formData.append("prenom",user.prenom);
+    formData.append("email",user.email);
+    formData.append("num", user.num);
+    formData.append("address", user.address);
+    formData.append("dateOfBirth", user.dateOfBirth);
+    formData.append("isAdmin", user.isAdmin);
+
+    const result = await userRequest.patch("/user/update", formData);
+    console.log(result);
     dispatch(updateInfoSuccess(result.data));
     toast.success("Profile has been updated", {
       duration: 4000,
@@ -47,7 +58,7 @@ export const update = async (/** @type {(arg0: { payload: any; //   style: { bac
       style: { background: "green", color: "white" },
     });
   } catch (error) {
-    console.log(error);    
+    console.log(error);
     toast.error("Something went wrong", {
       duration: 4000,
       position: "top-center",
