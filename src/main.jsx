@@ -29,6 +29,12 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/" />;
 }
 
+function ProtectAdminRoute({ children }) {
+  // @ts-ignore
+  const user = useSelector((state) => state.user?.userInfo);
+  return user?.isAdmin ? children : <Navigate to="/home" />;
+}
+
 // Then use it like this:
 const routes = (
   <Routes>
@@ -57,7 +63,9 @@ const routes = (
         path="team"
         element={
           <ProtectedRoute>
+            <ProtectAdminRoute>
             <Team />
+            </ProtectAdminRoute>
           </ProtectedRoute>
         }
       />

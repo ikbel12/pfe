@@ -219,42 +219,46 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
       <Divider />
 
       <List>
-        {Array2.map((item) => (
-          <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
-            <Tooltip title={open ? null : item.text} placement="left">
-              <ListItemButton
-                onClick={() => {
-                  navigate(item.path);
-                }}
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                  bgcolor:
-                    location.pathname === item.path
-                      ? theme.palette.mode === "dark"
-                        ? grey[800]
-                        : grey[300]
-                      : null,
-                }}
-              >
-                <ListItemIcon
+        {Array2.map((item) => {
+          if(item.path === "team" && !user.isAdmin) return;
+          // check if the role of user = admin
+          return (
+            <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
+              <Tooltip title={open ? null : item.text} placement="left">
+                <ListItemButton
+                  onClick={() => {
+                    navigate(item.path);
+                  }}
                   sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
+                    minHeight: 48,
+                    justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                    bgcolor:
+                      location.pathname === item.path
+                        ? theme.palette.mode === "dark"
+                          ? grey[800]
+                          : grey[300]
+                        : null,
                   }}
                 >
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  sx={{ opacity: open ? 1 : 0 }}
-                />
-              </ListItemButton>
-            </Tooltip>
-          </ListItem>
-        ))}
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.text}
+                    sx={{ opacity: open ? 1 : 0 }}
+                  />
+                </ListItemButton>
+              </Tooltip>
+            </ListItem>
+          )
+        })}
       </List>
       {/*
       <Divider />
