@@ -37,10 +37,10 @@ export const logout = async (/** @type {(arg0: { payload: undefined; //   style:
 export const update = async (/** @type {(arg0: { payload: any; //   style: { background: "red", color: "white" },
    //   style: { background: "red", color: "white" },
   // });
-  type: "user/updateInfoSuccess"; }) => void} */ dispatch, /** @type {any} */ user, profileImage) => {
+  type: "user/updateInfoSuccess"; }) => void} */ dispatch, /** @type {any} */ user) => {
   try {
     const formData = new FormData();
-    formData.append("image", profileImage);
+    formData.append("image", user.image);
     formData.append("nom",user.nom);
     formData.append("prenom",user.prenom);
     formData.append("email",user.email);

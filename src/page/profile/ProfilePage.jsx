@@ -45,6 +45,7 @@ const ProfilePage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [updated,setUpdated] = useState(false); 
 
   const [profileData, setProfileData] = useState({
     nom: user?.nom,
@@ -114,15 +115,16 @@ const ProfilePage = () => {
   };
 
   const handleImageChange = (event) => {
+    setUpdated(true);
     const image = event.target.files[0];
     const imageUrl = URL.createObjectURL(image);
+    setProfileData({ ...profileData, image: image });
     setProfileImage(imageUrl);
-    localStorage.setItem("profileImage", imageUrl);
   };
 
   const handleEditProfile = async() => {
     try {
-      await update(dispatch, profileData, profileImage);
+      await update(dispatch, profileData);
     } catch (error) {
       console.log(error);
     }
@@ -221,7 +223,7 @@ const ProfilePage = () => {
     <Box>
       <Header title="Profile Page" subTitle="Modify your account here" />
       <ProfilePageContainer>
-        <AvatarImage src={profileImage} alt="Profile" />
+        <AvatarImage src={updated ? profileImage : `http://localhost:3000/${profileImage}`} alt="Profile" />
         <Box display="flex" justifyContent="center" marginBottom={2}>
           <label htmlFor="upload-button">
             <Button variant="contained" component="span">

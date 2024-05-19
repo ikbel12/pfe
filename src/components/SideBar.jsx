@@ -156,7 +156,7 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
           transition: "0.25s",
         }}
         alt="Remy Sharp"
-        src={user?.image}
+        src={`http://localhost:3000/${user?.image}`}
       />
       <Typography
         align="center"
