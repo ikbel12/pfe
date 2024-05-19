@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Input, LinearProgress, TextField, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, LinearProgress, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { publicRequest } from "../../requestMethod";
@@ -43,20 +43,6 @@ export default function ChangePassword() {
     setConfPassword((prevState) => ({
       ...prevState,
       isValid: prevState.value === password.value
-    }));
-  }
-
-  // toggle the password visibility
-  const changePasswordVisibility = () => {
-    setPassword((prevState) => ({
-      ...prevState,
-      showPass: !prevState.showPass
-    }));
-  }
-  const changeConfPasswordVisibility = () => {
-    setConfPassword((prevState) => ({
-      ...prevState,
-      showPass: !prevState.showPass
     }));
   }
 
