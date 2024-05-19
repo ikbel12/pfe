@@ -20,6 +20,7 @@ import ReclamationForm from "./page/reclamation/ReclamationForm";
 import { persistor, store } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import SettingAlert from "./page/settingalert/SettingAlert";
+import ChangePassword from "./page/auth/ChangePassword";
 
 function ProtectedRoute({ children }) {
   // @ts-ignore
@@ -34,6 +35,7 @@ const routes = (
     <Route path="/" element={<SignInSide />} />
     <Route path="/ResetPasswordForm" element={<ResetPasswordForm />} />
     <Route path="/signup" element={<SignUp />} />
+    <Route path="/set-password" element={<ChangePassword />} />
 
     <Route
       path="/home"

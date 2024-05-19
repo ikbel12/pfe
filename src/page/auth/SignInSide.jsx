@@ -16,6 +16,7 @@ import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { login } from "../../redux/apiCalls";
 import { Toaster } from "react-hot-toast";
+import ResetDialog from "../../components/ResetDialog";
 
 function SignInSide() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ function SignInSide() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
   // @ts-ignore
   const errorMessage = useSelector((state) => state?.user?.error); // 2
 
@@ -40,7 +42,7 @@ function SignInSide() {
   };
 
   const handleResetPasswordFormClick = () => {
-    navigate("/ResetPasswordForm");
+    setOpenDialog(true);
   };
 
   const handleSignUpClick = () => {
@@ -51,6 +53,7 @@ function SignInSide() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
+      <ResetDialog openDialog={openDialog} setOpenDialog={setOpenDialog} />
       <Grid container component="main" sx={{ height: "100vh" }}>
         <CssBaseline />
         <Grid
@@ -131,9 +134,9 @@ function SignInSide() {
 
               <Grid container>
                 <Grid item xs>
-                  <Link onClick={handleResetPasswordFormClick} variant="body2">
+                  <Button onClick={handleResetPasswordFormClick}>
                     Forgot password?
-                  </Link>
+                  </Button>
                 </Grid>
                 <Grid item>
                   <Link onClick={handleSignUpClick} variant="body2">
