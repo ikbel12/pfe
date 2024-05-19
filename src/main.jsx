@@ -8,7 +8,8 @@ import SignUp from "./page/auth/SignUp";
 import App from "./App";
 import Dashboard from "./page/dashboard/Dashboard";
 import Team from "./page/team/Team";
-import Invoices from "./page/invoices/Invoices";
+import Client from "./page/client/Client";
+import Supplier from "./page/supplier/Supplier";
 import BarChart from "./page/barChart/BarChart";
 import PieChart from "./page/pieChart/PieChart";
 import LineChart from "./page/lineChart/LineChart";
@@ -21,6 +22,7 @@ import { persistor, store } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import SettingAlert from "./page/settingalert/SettingAlert";
 import ChangePassword from "./page/auth/ChangePassword";
+ import PermessionUser from "./page/permession/PermessionUser";
 
 function ProtectedRoute({ children }) {
   // @ts-ignore
@@ -64,7 +66,7 @@ const routes = (
         element={
           <ProtectedRoute>
             <ProtectAdminRoute>
-            <Team />
+              <Team />
             </ProtectAdminRoute>
           </ProtectedRoute>
         }
@@ -86,10 +88,18 @@ const routes = (
         }
       />
       <Route
-        path="invoices"
+        path="client"
         element={
           <ProtectedRoute>
-            <Invoices />
+            <Client />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="supplier"
+        element={
+          <ProtectedRoute>
+            <Supplier />
           </ProtectedRoute>
         }
       />
@@ -106,6 +116,14 @@ const routes = (
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+          <Route
+        path="permession"
+        element={
+          <ProtectedRoute>
+            <PermessionUser />
           </ProtectedRoute>
         }
       />

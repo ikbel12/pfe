@@ -73,7 +73,7 @@ const Subscriptions = () => {
     { field: "id", headerName: "ID", width: 100, flex: 0.7 },
     {
       field: "nom",
-      headerName: "Subscription Name",
+      headerName: "Service Name",
       flex: 0.7,
       cellClassName: "name-column--cell",
     },
@@ -233,7 +233,7 @@ const Subscriptions = () => {
   return (
     <Box>
       <Toaster />
-      <Header title="Subscriptions" subTitle="List of CLOUD Subscriptions" />
+      <Header title="Services" subTitle="List of CLOUD Services" />
       <Box
         sx={{
           display: "flex",
@@ -248,7 +248,7 @@ const Subscriptions = () => {
           color="primary"
           onClick={() => setOpenDialog(true)}
         >
-          Create Subscription
+          Create Service
         </Button>
       </Box>
       <Box sx={{ height: 650, width: "99%", mx: "auto" }}>
@@ -262,7 +262,7 @@ const Subscriptions = () => {
         />
       </Box>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Add New Subscription</DialogTitle>
+        <DialogTitle>Add New Service</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
@@ -327,7 +327,7 @@ const Subscriptions = () => {
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
           <Typography>
-            Are you sure you want to delete this subscription?
+            Are you sure you want to delete this service ?
           </Typography>
         </DialogContent>
         <DialogActions>

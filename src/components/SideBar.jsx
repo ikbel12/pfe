@@ -25,8 +25,11 @@ import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
+import Diversity1OutlinedIcon from "@mui/icons-material/Diversity1Outlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import LocalActivityOutlinedIcon from "@mui/icons-material/LocalActivityOutlined";
+import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
 import { useLocation, useNavigate } from "react-router-dom";
 import { grey } from "@mui/material/colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -85,19 +88,24 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 const Array1 = [
   { text: "Dashboard", icon: <HomeOutlinedIcon />, path: "/home" },
   {
-    text: "Subscriptions List",
-    icon: <ContactsOutlinedIcon />,
+    text: "Services List",
+    icon: <LocalActivityOutlinedIcon />,
     path: "subscriptions",
+  },
+  {
+    text: "Suppliers List",
+    icon: <ContactsOutlinedIcon />,
+    path: "supplier",
+  },
+  {
+    text: "Clients List",
+    icon: <Diversity1OutlinedIcon />,
+    path: "client",
   },
   {
     text: "Setting Alert",
     icon: <CalendarMonthOutlinedIcon />,
     path: "alertsetting",
-  },
-  {
-    text: "Invoices Balances",
-    icon: <ReceiptOutlinedIcon />,
-    path: "invoices",
   },
 ];
 
@@ -112,6 +120,11 @@ const Array2 = [
     text: "Reclamation Form",
     icon: <ReportProblemOutlinedIcon />,
     path: "reclamation",
+  },
+  {
+    text: "User Permession ",
+    icon: < AddTaskOutlinedIcon/>,
+    path: "permession",
   },
 ];
 /*
@@ -220,7 +233,7 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
 
       <List>
         {Array2.map((item) => {
-          if(item.path === "team" && !user.isAdmin) return;
+          if (item.path === "team" && !user.isAdmin) return;
           // check if the role of user = admin
           return (
             <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
@@ -257,7 +270,7 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
                 </ListItemButton>
               </Tooltip>
             </ListItem>
-          )
+          );
         })}
       </List>
       {/*

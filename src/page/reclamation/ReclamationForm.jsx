@@ -29,8 +29,8 @@ const ReclamationForm = () => {
       subcategory: "",
       type: "",
       urgency: "",
-      watchers: ""
-    }
+      watchers: "",
+    },
   ]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -48,10 +48,9 @@ const ReclamationForm = () => {
   });
 
   useEffect(() => {
-    const fetchReclamations = async() => {
+    const fetchReclamations = async () => {
       try {
         const response = await userRequest.get("/reclamation/getall");
-        console.log("hahaha",response)
         setReclamations(
           response.data.map(
             (
@@ -68,17 +67,20 @@ const ReclamationForm = () => {
               urgency: reclamation.urgency,
               watchers: reclamation.watchers,
             })
-            )
-        )
+          )
+        );
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
     fetchReclamations();
-  },[])
+  }, []);
   const handleAddReclamation = async () => {
     try {
-      const response = await userRequest.post("/reclamation/create", newReclamationData);
+      const response = await userRequest.post(
+        "/reclamation/create",
+        newReclamationData
+      );
       toast.success("Reclamation created successfully", {
         duration: 4000,
         position: "top-center",
@@ -119,7 +121,7 @@ const ReclamationForm = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "id", width: 180 },
+    { field: "id", headerName: "Reclamation ID", width: 180, flex: 1 },
     { field: "subject", headerName: "Subject", width: 180 },
     { field: "category", headerName: "Category", width: 180 },
     { field: "product", headerName: "Product", width: 180 },
