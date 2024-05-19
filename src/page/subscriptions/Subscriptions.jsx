@@ -70,11 +70,11 @@ const Subscriptions = () => {
   }, []);
 
   const columns = [
-    { field: "id", headerName: "ID", width: 100 , flex: 0.7},
+    { field: "id", headerName: "ID", width: 100, flex: 0.7 },
     {
       field: "nom",
       headerName: "Subscription Name",
-      flex:0.7,
+      flex: 0.7,
       cellClassName: "name-column--cell",
     },
     {
@@ -117,7 +117,7 @@ const Subscriptions = () => {
             backgroundColor:
               statut === "expired"
                 ? theme.palette.error.main // Red for Expired
-                : statut === "Not expired"
+                : statut === "ok"
                 ? theme.palette.success.main // Green for Not expired
                 : "#3da58a",
           }}
@@ -125,7 +125,7 @@ const Subscriptions = () => {
           {statut === "expired" && (
             <WarningAmberOutlinedIcon sx={{ color: "#fff" }} fontSize="small" />
           )}
-          {statut === "Not expired" && (
+          {statut === "ok" && (
             <GppGoodOutlinedIcon sx={{ color: "#fff" }} fontSize="small" />
           )}
           <Typography sx={{ fontSize: "13px", color: "#fff" }}>

@@ -25,6 +25,8 @@ const Team = () => {
   const theme = useTheme();
   const [users, setUsers] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [newUserData, setNewUserData] = useState({
     prenom: "",
     nom: "",
@@ -73,7 +75,6 @@ const Team = () => {
         headerAlign: "left",
       },
       {
-        // hedhy mtaa role isAdmin kanou admin yodher bel mauve ken user azrek
         field: "isAdmin",
         headerName: "Access",
         flex: 0.5,
@@ -129,7 +130,7 @@ const Team = () => {
             color="error"
             size="small"
             startIcon={<DeleteOutline />}
-            onClick={() => handleDeleteUser(row._id)}
+            onClick={() => handleDeleteUserClick(row._id)}
           >
             Delete
           </Button>
@@ -139,10 +140,19 @@ const Team = () => {
     [theme.palette.primary.dark]
   );
 
-  const handleDeleteUser = async (id) => {
+  const handleDeleteUserClick = (id) => {
+    setUserToDelete(id);
+    setConfirmDeleteDialog(true);
+  };
+
+  const handleDeleteUser = async () => {
     try {
-      await axios.delete(`http://localhost:3000/api/user/${id}`);
-      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
+      await axios.delete(`http://localhost:3000/api/user/${userToDelete}`);
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user._id !== userToDelete)
+      );
+      setConfirmDeleteDialog(false);
+      setUserToDelete(null);
     } catch (error) {
       console.error("Error deleting user:", error);
     }
@@ -291,6 +301,30 @@ const Team = () => {
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
           <Button onClick={handleAddUser}>Add</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={confirmDeleteDialog}
+        onClose={() => setConfirmDeleteDialog(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this user?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteDialog(false)}>Cancel</Button>
+          <Button
+            sx={{
+              backgroundColor: "#fff",
+              color: "red",
+              "&:hover": {
+                backgroundColor: "#f5f5f5",
+              },
+            }}
+            onClick={handleDeleteUser}
+          >
+            Delete
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
