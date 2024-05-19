@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,9 +15,23 @@ import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { userRequest } from "../../requestMethod";
 const ReclamationForm = () => {
   const theme = useTheme();
-  const [reclamations, setReclamations] = useState([]);
+  const [reclamations, setReclamations] = useState([
+    {
+      id: "",
+      subject: "",
+      body: "",
+      category: "",
+      product: "",
+      serviceName: "",
+      subcategory: "",
+      type: "",
+      urgency: "",
+      watchers: ""
+    }
+  ]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteReclamationId, setDeleteReclamationId] = useState(null);
@@ -33,18 +47,51 @@ const ReclamationForm = () => {
     watchers: "",
   });
 
-  const handleAddReclamation = () => {
-    const newReclamation = {
-      ...newReclamationData,
-      id: Math.random().toString(36).substr(2, 9), // Generate a random ID
-    };
-    setReclamations([...reclamations, newReclamation]);
-    setOpenDialog(false);
-    toast.success("Reclamation added successfully", {
-      duration: 4000,
-      position: "top-center",
-      style: { background: "green", color: "white" },
-    });
+  useEffect(() => {
+    const fetchReclamations = async() => {
+      try {
+        const response = await userRequest.get("/reclamation/getall");
+        console.log("hahaha",response)
+        setReclamations(
+          response.data.map(
+            (
+              /** @type {{ _id: any; subject: any; body: any; category: any; product: any; serviceName: any; subcategory: any; type: any; urgency: any; watchers: any; }} */ reclamation
+            ) => ({
+              id: reclamation._id,
+              subject: reclamation.subject,
+              body: reclamation.body,
+              category: reclamation.category,
+              product: reclamation.product,
+              serviceName: reclamation.serviceName,
+              subcategory: reclamation.subcategory,
+              type: reclamation.type,
+              urgency: reclamation.urgency,
+              watchers: reclamation.watchers,
+            })
+            )
+        )
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchReclamations();
+  },[])
+  const handleAddReclamation = async () => {
+    try {
+      const response = await userRequest.post("/reclamation/create", newReclamationData);
+      toast.success("Reclamation created successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      window.location.reload();
+    } catch (error) {
+      toast.error("Failed to add subscription", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
   };
 
   const handleDeleteClick = (id) => {
@@ -72,20 +119,12 @@ const ReclamationForm = () => {
   };
 
   const columns = [
-    { field: "ticketId", headerName: "Ticket ID", width: 120 },
-    { field: "accountId", headerName: "Account ID", width: 120 },
-    { field: "canBeClosed", headerName: "Can Be Closed", width: 150 },
-    { field: "category", headerName: "Category", width: 120 },
-    { field: "creationDate", headerName: "Creation Date", width: 150 },
-    { field: "lastMessageFrom", headerName: "Last Message From", width: 180 },
-    { field: "product", headerName: "Product", width: 120 },
-    { field: "score", headerName: "Score", width: 100 },
-    { field: "serviceName", headerName: "Service Name", width: 150 },
-    { field: "state", headerName: "State", width: 120 },
+    { field: "id", headerName: "id", width: 180 },
     { field: "subject", headerName: "Subject", width: 180 },
-    { field: "ticketNumber", headerName: "Ticket Number", width: 150 },
-    { field: "type", headerName: "Type", width: 120 },
-    { field: "updateDate", headerName: "Update Date", width: 150 },
+    { field: "category", headerName: "Category", width: 180 },
+    { field: "product", headerName: "Product", width: 180 },
+    { field: "serviceName", headerName: "Service Name", width: 180 },
+    { field: "type", headerName: "Type", width: 180 },
     {
       field: "actions",
       headerName: "Actions",
