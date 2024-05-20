@@ -6,7 +6,7 @@ import {
   Typography,
   Link,
 } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import { publicRequest } from "../../requestMethod";
 import LockIcon from "@mui/icons-material/Lock";
@@ -48,12 +48,20 @@ export default function ChangePassword() {
     }));
   };
 
-  const handleConfPasswordValidation = () => {
+  const validatePasswords = () => {
+    setPassword((prevState) => ({
+      ...prevState,
+      isValid: confPassword.value === prevState.value,
+    }));
     setConfPassword((prevState) => ({
       ...prevState,
       isValid: prevState.value === password.value,
     }));
   };
+
+  useEffect(() => {
+    validatePasswords();
+  }, [password.value, confPassword.value]);
 
   const sendButtonHandler = () => {
     setIsLoading(true);
@@ -108,7 +116,7 @@ export default function ChangePassword() {
       minHeight="100vh"
       bgcolor="background.default"
       sx={{
-        marginTop: '-10vh', // Adjust this value to move the form higher or lower
+        marginTop: "-10vh", // Adjust this value to move the form higher or lower
       }}
     >
       <Box
@@ -119,7 +127,7 @@ export default function ChangePassword() {
         alignItems="center"
         justifyContent="center"
         maxWidth="360px"
-        width="100%"  // Ensures the form is responsive
+        width="100%" // Ensures the form is responsive
         p={3}
         boxShadow={4}
         bgcolor="background.paper"
@@ -153,7 +161,7 @@ export default function ChangePassword() {
             helperText={!password.isValid && "Passwords do not match"}
             value={password.value}
             onChange={handlePasswordInputChanges}
-            onBlur={handleConfPasswordValidation}
+            onBlur={validatePasswords}
           />
         </Box>
         <Box mb={2} width="100%">
@@ -166,7 +174,7 @@ export default function ChangePassword() {
             helperText={!confPassword.isValid && "Passwords do not match"}
             value={confPassword.value}
             onChange={handleConfPasswordInputChanges}
-            onBlur={handleConfPasswordValidation}
+            onBlur={validatePasswords}
           />
         </Box>
         <Button
@@ -177,7 +185,11 @@ export default function ChangePassword() {
           disabled={!password.isValid || !confPassword.isValid || isLoading}
           onClick={sendButtonHandler}
         >
-          {isLoading ? <CircularProgress size={24} color="inherit" /> : "Confirm"}
+          {isLoading ? (
+            <CircularProgress size={24} color="inherit" />
+          ) : (
+            "Confirm"
+          )}
         </Button>
         {alert.show && (
           <Typography mt={2} color={alert.type} fontWeight="bold">
