@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -14,9 +15,12 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
+import { userRequest } from "../../requestMethod";
 
 const Supplier = () => {
   const theme = useTheme();
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState([]);
   const [suppliers, setSuppliers] = useState([
     {
       id: 1,
@@ -31,14 +35,36 @@ const Supplier = () => {
       services: "Service 2",
     },
   ]);
+  console.log("hello world",selectedService);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteSupplierId, setDeleteSupplierId] = useState(null);
+  const [serviceOptions, setServiceOptions] = useState([]);
   const [newSupplierData, setNewSupplierData] = useState({
     supplierName: "",
     phone: "",
-    services: "",
+    services: [],
   });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await userRequest.get(
+          "/service/getallservices"
+        );
+        setServices(response.data);
+        setServiceOptions(
+          response.data.map((service) => ({
+            label: service.nom,
+            value: service._id,
+          }))
+        )
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleDeleteClick = (id) => {
     setDeleteSupplierId(id);
@@ -60,27 +86,42 @@ const Supplier = () => {
     setOpenConfirmDialog(false);
   };
 
-  const handleAddSupplier = () => {
-    const newSupplier = {
-      id: suppliers.length ? suppliers[suppliers.length - 1].id + 1 : 1,
-      nom: newSupplierData.supplierName,
-      num: newSupplierData.phone,
-      services: newSupplierData.services,
-    };
-    setSuppliers([...suppliers, newSupplier]);
-    setOpenDialog(false);
-    setNewSupplierData({
-      supplierName: "",
-      phone: "",
-      services: "",
-    });
-    toast.success("Supplier added successfully", {
-      duration: 4000,
-      position: "top-center",
-      style: { background: "green", color: "white" },
-    });
-  };
-
+  const handleAddSupplier = async () => {
+    try {
+      const response = await userRequest.post("/supplier/create", {
+        nom: newSupplierData.supplierName,
+        num: newSupplierData.phone,
+        services: selectedService.map((service) => service.value),
+      });
+      setSuppliers([
+        ...suppliers,
+        {
+          id: response.data._id,
+          nom: response.data.nom,
+          num: response.data.num,
+          services: response.data.services.map((service) => service.nom).join(", "),
+        },
+      ]);
+      setOpenDialog(false);
+      setNewSupplierData({
+        supplierName: "",
+        phone: "",
+        services: [],
+      });
+      toast.success("Supplier added successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Error adding supplier", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+  }
   const columns = [
     { field: "id", headerName: "ID", width: 100, flex: 0.7 },
     { field: "nom", headerName: "Supplier Name", flex: 0.7 },
@@ -172,17 +213,31 @@ const Supplier = () => {
               })
             }
           />
-          <TextField
-            margin="dense"
-            label="Service Name"
-            fullWidth
-            value={newSupplierData.services}
-            onChange={(e) =>
-              setNewSupplierData({
-                ...newSupplierData,
-                services: e.target.value,
-              })
+
+            <Autocomplete
+            multiple
+            freeSolo
+            value={selectedService}
+            getOptionLabel={(option) => option.label}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+            options={services.map((service) => ({
+              label: service.nom,
+              value: service._id, // ou tout autre identifiant unique si nécessaire
+            }))}
+            onChange={(event, newValue) => {
+              setSelectedService(newValue);
             }
+            }
+            // loading={loading}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Subscription Name"
+                variant="filled"
+                fullWidth
+                sx={{ mb: 3 }}
+              />
+            )}
           />
         </DialogContent>
         <DialogActions>
