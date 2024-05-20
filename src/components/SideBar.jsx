@@ -29,7 +29,7 @@ import Diversity1OutlinedIcon from "@mui/icons-material/Diversity1Outlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import LocalActivityOutlinedIcon from "@mui/icons-material/LocalActivityOutlined";
-import AddTaskOutlinedIcon from '@mui/icons-material/AddTaskOutlined';
+import AddTaskOutlinedIcon from "@mui/icons-material/AddTaskOutlined";
 import { useLocation, useNavigate } from "react-router-dom";
 import { grey } from "@mui/material/colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -123,7 +123,7 @@ const Array2 = [
   },
   {
     text: "User Permession ",
-    icon: < AddTaskOutlinedIcon/>,
+    icon: <AddTaskOutlinedIcon />,
     path: "permession",
   },
 ];
@@ -149,7 +149,18 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
   const dispatch = useDispatch();
   return (
     <Drawer variant="permanent" open={open}>
-      <DrawerHeader>
+      <DrawerHeader sx={{ display: "flex", alignItems: "center" }}>
+        {open && (
+          <img
+            src="/assets/MedianetLogo.png"
+            alt="Logo"
+            style={{
+              maxWidth: "85%",
+              height: "auto",
+              transition: open ? "" : "max-width 0.25s ease-out",
+            }}
+          />
+        )}
         <IconButton onClick={handleDrawerClose}>
           {theme.direction === "rtl" ? (
             <ChevronRightIcon />

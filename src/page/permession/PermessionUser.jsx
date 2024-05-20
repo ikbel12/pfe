@@ -8,6 +8,7 @@ import {
   CardContent,
   Typography,
   Divider,
+  Grid,
   Dialog,
   DialogActions,
   DialogContent,
@@ -23,43 +24,31 @@ const PermissionUser = () => {
     { label: "Service 2", value: "2" },
     { label: "Service 3", value: "3" },
   ]);
-  const [selectedService, setSelectedService] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [days, setDays] = useState(null);
-  const [globalDays, setGlobalDays] = useState([]);
-  const [additionalField, setAdditionalField] = useState([]);
-
   const [serviceID, setServiceID] = useState([]);
   const [userID, setUserID] = useState([]);
   const [supplierID, setSupplierID] = useState([]);
   const [clientID, setClientID] = useState([]);
+  const [dialogOpen, setDialogOpen] = useState({
+    userID: false,
+    supplierID: false,
+    clientID: false,
+  });
 
-  const handleConfirmClose = () => {
-    setOpen(false);
+  const handleConfirmClose = (type) => {
+    setDialogOpen({ ...dialogOpen, [type]: false });
   };
 
-  const handleConfirm = () => {
-    setOpen(false);
-    toast.success("Settings updated successfully!", {
-      duration: 4000,
-      position: "top-right",
-    });
+  const handleCancel = (type) => {
+    handleConfirmClose(type);
   };
 
-  const handleCancel = () => {
-    handleConfirmClose();
+  const handleConfirmOpen = (type) => {
+    setDialogOpen({ ...dialogOpen, [type]: true });
   };
 
-  const handleConfirmOpen = () => {
-    setOpen(true);
-  };
-
-  const handleSubmit = () => {
-    handleConfirmClose();
-    toast.success("Custom alert set successfully!", {
-      duration: 4000,
-      position: "top-right",
-    });
+  const handleConfirmAction = (type) => {
+    // Add logic for confirming settings
+    handleConfirmClose(type);
   };
 
   return (
@@ -94,106 +83,163 @@ const PermissionUser = () => {
           <Typography variant="body1" gutterBottom>
             Choose the User ID :
           </Typography>
-          <Autocomplete
-            multiple
-            id="userID"
-            options={[
-              { label: "User 1", value: "1" },
-              { label: "User 2", value: "2" },
-              { label: "User 3", value: "3" },
-            ]}
-            value={userID}
-            onChange={(event, newValue) => setUserID(newValue)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="User ID"
-                variant="filled"
-                fullWidth
-                sx={{ mb: 3 }}
+          <Grid container spacing={2} alignItems="center" mb={3}>
+            <Grid item xs>
+              <Autocomplete
+                multiple
+                id="userID"
+                options={[
+                  { label: "User 1", value: "1" },
+                  { label: "User 2", value: "2" },
+                  { label: "User 3", value: "3" },
+                ]}
+                value={userID}
+                onChange={(event, newValue) => setUserID(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="User ID"
+                    variant="filled"
+                    fullWidth
+                  />
+                )}
               />
-            )}
-          />
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                onClick={() => handleConfirmOpen("userID")}
+                sx={{ textTransform: "capitalize" }}
+              >
+                Confirm
+              </Button>
+            </Grid>
+          </Grid>
           <Typography variant="body1" gutterBottom>
             Choose the Supplier ID :
           </Typography>
-          <Autocomplete
-            multiple
-            id="supplierID"
-            options={[
-              { label: "Supplier 1", value: "1" },
-              { label: "Supplier 2", value: "2" },
-              { label: "Supplier 3", value: "3" },
-            ]}
-            value={supplierID}
-            onChange={(event, newValue) => setSupplierID(newValue)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Supplier ID"
-                variant="filled"
-                fullWidth
-                sx={{ mb: 3 }}
+          <Grid container spacing={2} alignItems="center" mb={3}>
+            <Grid item xs>
+              <Autocomplete
+                multiple
+                id="supplierID"
+                options={[
+                  { label: "Supplier 1", value: "1" },
+                  { label: "Supplier 2", value: "2" },
+                  { label: "Supplier 3", value: "3" },
+                ]}
+                value={supplierID}
+                onChange={(event, newValue) => setSupplierID(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Supplier ID"
+                    variant="filled"
+                    fullWidth
+                  />
+                )}
               />
-            )}
-          />
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                onClick={() => handleConfirmOpen("supplierID")}
+                sx={{ textTransform: "capitalize" }}
+              >
+                Confirm
+              </Button>
+            </Grid>
+          </Grid>
           <Typography variant="body1" gutterBottom>
             Choose the client ID :
           </Typography>
-          <Autocomplete
-            multiple
-            id="clientID"
-            options={[
-              { label: "Client 1", value: "1" },
-              { label: "Client 2", value: "2" },
-              { label: "Client 3", value: "3" },
-            ]}
-            value={clientID}
-            onChange={(event, newValue) => setClientID(newValue)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Client ID"
-                variant="filled"
-                fullWidth
-                sx={{ mb: 3 }}
+          <Grid container spacing={2} alignItems="center" mb={3}>
+            <Grid item xs>
+              <Autocomplete
+                multiple
+                id="clientID"
+                options={[
+                  { label: "Client 1", value: "1" },
+                  { label: "Client 2", value: "2" },
+                  { label: "Client 3", value: "3" },
+                ]}
+                value={clientID}
+                onChange={(event, newValue) => setClientID(newValue)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Client ID"
+                    variant="filled"
+                    fullWidth
+                  />
+                )}
               />
-            )}
-          />
-
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-            <Button
-              variant="contained"
-              onClick={handleConfirmOpen}
-              sx={{ textTransform: "capitalize" }}
-            >
-              Confirm
-            </Button>
-          </Box>
+            </Grid>
+            <Grid item>
+              <Button
+                variant="contained"
+                onClick={() => handleConfirmOpen("clientID")}
+                sx={{ textTransform: "capitalize" }}
+              >
+                Confirm
+              </Button>
+            </Grid>
+          </Grid>
         </CardContent>
       </Card>
-
       <Dialog
-        open={open}
-        onClose={handleConfirmClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        open={dialogOpen.userID}
+        onClose={() => handleConfirmClose("userID")}
       >
-        <DialogTitle id="alert-dialog-title">{"Confirm Settings"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">Confirm User ID</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure about the permession ?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel}>Cancel</Button>
-          <Button onClick={handleConfirm} autoFocus>
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
-  );
+            Are you sure about your decision?
+</DialogContentText>
+</DialogContent>
+<DialogActions>
+<Button onClick={() => handleCancel("userID")}>Cancel</Button>
+<Button onClick={() => handleConfirmAction("userID")} autoFocus>
+Confirm
+</Button>
+</DialogActions>
+</Dialog>
+<Dialog
+open={dialogOpen.supplierID}
+onClose={() => handleConfirmClose("supplierID")}
+>
+<DialogTitle id="alert-dialog-title">Confirm Supplier ID</DialogTitle>
+<DialogContent>
+<DialogContentText id="alert-dialog-description">
+Are you sure about your decision?
+</DialogContentText>
+</DialogContent>
+<DialogActions>
+<Button onClick={() => handleCancel("supplierID")}>Cancel</Button>
+<Button onClick={() => handleConfirmAction("supplierID")} autoFocus>
+Confirm
+</Button>
+</DialogActions>
+</Dialog>
+<Dialog
+open={dialogOpen.clientID}
+onClose={() => handleConfirmClose("clientID")}
+>
+<DialogTitle id="alert-dialog-title">Confirm Client ID</DialogTitle>
+<DialogContent>
+<DialogContentText id="alert-dialog-description">
+Are you sure about your decision?
+</DialogContentText>
+</DialogContent>
+<DialogActions>
+<Button onClick={() => handleCancel("clientID")}>Cancel</Button>
+<Button onClick={() => handleConfirmAction("clientID")} autoFocus>
+Confirm
+</Button>
+</DialogActions>
+</Dialog>
+</Box>
+);
 };
 
 export default PermissionUser;
