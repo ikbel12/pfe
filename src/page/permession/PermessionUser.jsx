@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import {
@@ -17,13 +17,10 @@ import {
 } from "@mui/material";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
+import { userRequest } from "../../requestMethod";
 
 const PermissionUser = () => {
-  const [services, setServices] = useState([
-    { label: "Service 1", value: "1" },
-    { label: "Service 2", value: "2" },
-    { label: "Service 3", value: "3" },
-  ]);
+  const [services, setServices] = useState([]);
   const [serviceID, setServiceID] = useState([]);
   const [userID, setUserID] = useState([]);
   const [supplierID, setSupplierID] = useState([]);
@@ -33,6 +30,24 @@ const PermissionUser = () => {
     supplierID: false,
     clientID: false,
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await userRequest.get("/service/getallservices");
+        setServices(
+          response.data.map((service) => ({
+            label: service.nom,
+            value: service._id,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleConfirmClose = (type) => {
     setDialogOpen({ ...dialogOpen, [type]: false });
@@ -68,11 +83,15 @@ const PermissionUser = () => {
             id="serviceID"
             options={services}
             value={serviceID}
+            getOptionLabel={(option) => option.label}
+            isOptionEqualToValue={(option, value) =>
+              option.value === value.value
+            }
             onChange={(event, newValue) => setServiceID(newValue)}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Service ID"
+                label="Service Name"
                 variant="filled"
                 fullWidth
                 sx={{ mb: 3 }}
@@ -98,7 +117,7 @@ const PermissionUser = () => {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="User ID"
+                    label="User Name"
                     variant="filled"
                     fullWidth
                   />
@@ -133,7 +152,7 @@ const PermissionUser = () => {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Supplier ID"
+                    label="Supplier Name"
                     variant="filled"
                     fullWidth
                   />
@@ -168,7 +187,7 @@ const PermissionUser = () => {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Client ID"
+                    label="Client Name"
                     variant="filled"
                     fullWidth
                   />
@@ -195,51 +214,51 @@ const PermissionUser = () => {
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Are you sure about your decision?
-</DialogContentText>
-</DialogContent>
-<DialogActions>
-<Button onClick={() => handleCancel("userID")}>Cancel</Button>
-<Button onClick={() => handleConfirmAction("userID")} autoFocus>
-Confirm
-</Button>
-</DialogActions>
-</Dialog>
-<Dialog
-open={dialogOpen.supplierID}
-onClose={() => handleConfirmClose("supplierID")}
->
-<DialogTitle id="alert-dialog-title">Confirm Supplier ID</DialogTitle>
-<DialogContent>
-<DialogContentText id="alert-dialog-description">
-Are you sure about your decision?
-</DialogContentText>
-</DialogContent>
-<DialogActions>
-<Button onClick={() => handleCancel("supplierID")}>Cancel</Button>
-<Button onClick={() => handleConfirmAction("supplierID")} autoFocus>
-Confirm
-</Button>
-</DialogActions>
-</Dialog>
-<Dialog
-open={dialogOpen.clientID}
-onClose={() => handleConfirmClose("clientID")}
->
-<DialogTitle id="alert-dialog-title">Confirm Client ID</DialogTitle>
-<DialogContent>
-<DialogContentText id="alert-dialog-description">
-Are you sure about your decision?
-</DialogContentText>
-</DialogContent>
-<DialogActions>
-<Button onClick={() => handleCancel("clientID")}>Cancel</Button>
-<Button onClick={() => handleConfirmAction("clientID")} autoFocus>
-Confirm
-</Button>
-</DialogActions>
-</Dialog>
-</Box>
-);
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleCancel("userID")}>Cancel</Button>
+          <Button onClick={() => handleConfirmAction("userID")} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={dialogOpen.supplierID}
+        onClose={() => handleConfirmClose("supplierID")}
+      >
+        <DialogTitle id="alert-dialog-title">Confirm Supplier ID</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure about your decision?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleCancel("supplierID")}>Cancel</Button>
+          <Button onClick={() => handleConfirmAction("supplierID")} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={dialogOpen.clientID}
+        onClose={() => handleConfirmClose("clientID")}
+      >
+        <DialogTitle id="alert-dialog-title">Confirm Client ID</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure about your decision?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleCancel("clientID")}>Cancel</Button>
+          <Button onClick={() => handleConfirmAction("clientID")} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
 };
 
 export default PermissionUser;

@@ -38,7 +38,7 @@ const Subscriptions = () => {
     fournisseur: "",
     date_debut: "",
     date_fin: "",
-    statut: "Not expired",
+    statut: "ok",
   });
 
   useEffect(() => {

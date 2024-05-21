@@ -162,7 +162,7 @@ const SettingAlert = () => {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Subscription Name"
+                label="Service Name"
                 variant="filled"
                 fullWidth
                 sx={{ mb: 3 }}
