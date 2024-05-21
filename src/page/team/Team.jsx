@@ -170,8 +170,7 @@ const Team = () => {
   const handleModifyRole = async () => {
     try {
       console.log(newRole);
-      await userRequest.patch(`/user/update`, {
-        userId: userToModifyRole,
+      await userRequest.patch(`/user/update-role/${userToModifyRole}`, {
         isAdmin: newRole === "User" ? false : true,
       });
 
