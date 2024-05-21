@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -14,41 +15,104 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
+import { userRequest } from "../../requestMethod";
+import { useSelector } from "react-redux";
 
 const Client = () => {
   const theme = useTheme();
+  // @ts-ignore
+  const user = useSelector((state) => state.user?.userInfo);
   const [clients, setClients] = useState([
     {
-      id: 1,
-      nom: "Client 1",
-      adresse: "Address 1",
-      telephone: "123456789",
-      email: "client1@example.com",
-      services: "Service 1",
-    },
-    {
-      id: 2,
-      nom: "Client 2",
-      adresse: "Address 2",
-      telephone: "987654321",
-      email: "client2@example.com",
-      services: "Service 2",
-    },
+      id: "",
+      nom: "",
+      adresse: "",
+      telephone: "",
+      email: "",
+      services: [],
+    }
   ]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteClientId, setDeleteClientId] = useState(null);
+  const [services, setServices] = useState([]);
+  const [serviceOptions, setServiceOptions] = useState([]);
+  const [selectedService, setSelectedService] = useState([]);
   const [newClientData, setNewClientData] = useState({
     nom: "",
     adresse: "",
     telephone: "",
     email: "",
-    services: "",
+    services: [],
   });
 
-  const handleDeleteClick = (id) => {
-    setDeleteClientId(id);
-    setOpenConfirmDialog(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await userRequest.get(
+          "/service/getallservices"
+        );
+        setServices(response.data);
+        setServiceOptions(
+          response.data.map((service) => ({
+            label: service.nom,
+            value: service._id,
+          }))
+        )
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+
+    const fetchClients = async () => {
+      try {
+        const response = await userRequest.get("/client/getallclient");
+        setClients(
+          response.data.map(
+            (
+              /** @type {{ _id: any; nom: any; telephone: any; adresse: any; email: any; services: any; }} */ supplier
+            ) => ({
+              id: supplier._id,
+              nom: supplier.nom,
+              telephone: supplier.telephone,
+              adresse: supplier.adresse,
+              email: supplier.email,
+              services: supplier.services.map((service) => service.nom).join(", "),
+            })
+          )
+        );
+      } catch (error) {
+        console.error("Error fetching suppliers:", error);
+      }
+    };
+
+    fetchClients();
+
+    fetchData();
+  }, []);
+
+
+
+
+
+  const handleDeleteClick = async(id) => {
+    try {
+      await userRequest.delete(`/client/deleteclient/${id}`);
+      toast.success("Client deleted successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      window.location.reload();      
+    } catch (error) {
+      console.log(error);
+      toast.error("Error deleting client", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
   };
 
   const handleConfirmDelete = () => {
@@ -66,31 +130,39 @@ const Client = () => {
     setOpenConfirmDialog(false);
   };
 
-  const handleAddClient = () => {
-    const newClient = {
-      id: clients.length ? clients[clients.length - 1].id + 1 : 1,
-      nom: newClientData.nom,
-      adresse: newClientData.adresse,
-      telephone: newClientData.telephone,
-      email: newClientData.email,
-      services: newClientData.services,
-    };
-    setClients([...clients, newClient]);
-    setOpenDialog(false);
-    setNewClientData({
-      nom: "",
-      adresse: "",
-      telephone: "",
-      email: "",
-      services: "",
-    });
-    toast.success("Client added successfully", {
-      duration: 4000,
-      position: "top-center",
-      style: { background: "green", color: "white" },
-    });
-  };
+  const handleAddClient = async () => {
+    try {
+      await userRequest.post("/client/create", {
+        nom: newClientData.nom,
+        telephone: newClientData.telephone,
+        adresse: newClientData.adresse,
+        email: newClientData.email,
+        services: selectedService.map((service) => service.value),
+      });
 
+      setOpenDialog(false);
+      setNewClientData({
+        nom: "",
+        telephone: "",
+        adresse: "",
+        email: "",
+        services: []
+      });
+      toast.success("Supplier added successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+      toast.error("Error adding supplier", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+  }
   const columns = [
     { field: "id", headerName: "ID", width: 100, flex: 0.7 },
     { field: "nom", headerName: "Name", flex: 0.7 },
@@ -107,6 +179,7 @@ const Client = () => {
       renderCell: ({ row }) => (
         <Button
           variant="contained"
+          disabled={!user?.isAdmin}
           sx={{
             backgroundColor: theme.palette.error.main,
             color: "#fff",
@@ -130,7 +203,9 @@ const Client = () => {
     <Box>
       <Toaster />
       <Header title="Clients" subTitle="List of Clients" />
-      <Box
+      {
+        user?.isAdmin && (
+          <Box
         sx={{
           display: "flex",
           justifyContent: "flex-end",
@@ -147,6 +222,8 @@ const Client = () => {
           Add Client
         </Button>
       </Box>
+        )
+      }
       <Box sx={{ height: 650, width: "99%", mx: "auto" }}>
         <DataGrid
           slots={{
@@ -208,17 +285,30 @@ const Client = () => {
               })
             }
           />
-          <TextField
-            margin="dense"
-            label="Services"
-            fullWidth
-            value={newClientData.services}
-            onChange={(e) =>
-              setNewClientData({
-                ...newClientData,
-                services: e.target.value,
-              })
+          <Autocomplete
+            multiple
+            freeSolo
+            value={selectedService}
+            getOptionLabel={(option) => option.label}
+            isOptionEqualToValue={(option, value) => option.value === value.value}
+            options={services.map((service) => ({
+              label: service.nom,
+              value: service._id, // ou tout autre identifiant unique si nécessaire
+            }))}
+            onChange={(event, newValue) => {
+              setSelectedService(newValue);
             }
+            }
+            // loading={loading}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Subscription Name"
+                variant="filled"
+                fullWidth
+                sx={{ mb: 3 }}
+              />
+            )}
           />
         </DialogContent>
         <DialogActions>

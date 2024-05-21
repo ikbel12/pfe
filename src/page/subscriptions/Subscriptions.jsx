@@ -44,7 +44,7 @@ const Subscriptions = () => {
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
-        const response = await userRequest.get("/service/getallservices");
+        const response = await userRequest.get("/service/getserviceswithuser");
         // setSubscriptions(response.data);
         console.log(response);
 

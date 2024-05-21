@@ -101,18 +101,24 @@ const ReclamationForm = () => {
     setOpenConfirmDialog(true);
   };
 
-  const handleConfirmDelete = () => {
-    setReclamations(
-      reclamations.filter(
-        (reclamation) => reclamation.id !== deleteReclamationId
-      )
-    );
-    setOpenConfirmDialog(false);
-    toast.success("Reclamation deleted successfully", {
-      duration: 4000,
-      position: "top-center",
-      style: { background: "green", color: "white" },
-    });
+  const handleConfirmDelete = async() => {
+    try {
+      await userRequest.delete(`/reclamation/delete-reclamation/${deleteReclamationId}`);
+      toast.success("Reclamation deleted successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+      toast.error("Error deleting reclamation", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+    
   };
 
   const handleCancelDelete = () => {

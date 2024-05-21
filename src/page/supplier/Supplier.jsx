@@ -16,26 +16,25 @@ import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
+import { useSelector } from "react-redux";
 
 const Supplier = () => {
   const theme = useTheme();
+  // @ts-ignore
+  const user = useSelector((state) => state.user?.userInfo);
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState([]);
   const [suppliers, setSuppliers] = useState([
     {
-      id: 1,
-      nom: "Supplier 1",
-      num: "123456789",
-      services: "Service 1",
+      id: "",
+      nom: "",
+      telephone: "",
+      adresse: "",
+      email: "",
+      services: [],
     },
-    {
-      id: 2,
-      nom: "Supplier 2",
-      num: "987654321",
-      services: "Service 2",
-    },
+
   ]);
-  console.log("hello world",selectedService);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteSupplierId, setDeleteSupplierId] = useState(null);
@@ -43,6 +42,8 @@ const Supplier = () => {
   const [newSupplierData, setNewSupplierData] = useState({
     supplierName: "",
     phone: "",
+    adress:"",
+    email:"",
     services: [],
   });
   useEffect(() => {
@@ -63,12 +64,49 @@ const Supplier = () => {
       }
     };
 
+    const fetchSuppliers = async () => {
+      try {
+        const response = await userRequest.get("/fournisseur");
+        setSuppliers(
+          response.data.map(
+            (
+              /** @type {{ _id: any; nom: any; telephone: any; adresse: any; email: any; services: any; }} */ supplier
+            ) => ({
+              id: supplier._id,
+              nom: supplier.nom,
+              telephone: supplier.telephone,
+              adresse: supplier.adresse,
+              email: supplier.email,
+              services: supplier.services.map((service) => service.nom).join(", "),
+            })
+          )
+        );
+      } catch (error) {
+        console.error("Error fetching suppliers:", error);
+      }
+    };
+
+    fetchSuppliers();
     fetchData();
   }, []);
 
-  const handleDeleteClick = (id) => {
-    setDeleteSupplierId(id);
-    setOpenConfirmDialog(true);
+  const handleDeleteClick = async(id) => {
+    try {
+      await userRequest.delete(`/fournisseur/${id}`);
+      toast.success("Supplier deleted successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      window.location.reload();      
+    } catch (error) {
+      console.log(error);
+      toast.error("Error deleting supplier", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
   };
 
   const handleConfirmDelete = () => {
@@ -85,12 +123,13 @@ const Supplier = () => {
     setDeleteSupplierId(null);
     setOpenConfirmDialog(false);
   };
-
   const handleAddSupplier = async () => {
     try {
-      const response = await userRequest.post("/supplier/create", {
+      const response = await userRequest.post("/fournisseur/create", {
         nom: newSupplierData.supplierName,
-        num: newSupplierData.phone,
+        telephone: newSupplierData.phone,
+        adresse: newSupplierData.adress,
+        email: newSupplierData.email,
         services: selectedService.map((service) => service.value),
       });
       setSuppliers([
@@ -98,14 +137,19 @@ const Supplier = () => {
         {
           id: response.data._id,
           nom: response.data.nom,
-          num: response.data.num,
+          telephone: response.data.telephone,
+          adresse: response.data.adresse,
+          email: response.data.email,
           services: response.data.services.map((service) => service.nom).join(", "),
         },
       ]);
+
       setOpenDialog(false);
       setNewSupplierData({
         supplierName: "",
         phone: "",
+        adress:"",
+        email:"",
         services: [],
       });
       toast.success("Supplier added successfully", {
@@ -113,6 +157,7 @@ const Supplier = () => {
         position: "top-center",
         style: { background: "green", color: "white" },
       });
+      window.location.reload();
     } catch (error) {
       console.log(error);
       toast.error("Error adding supplier", {
@@ -125,7 +170,9 @@ const Supplier = () => {
   const columns = [
     { field: "id", headerName: "ID", width: 100, flex: 0.7 },
     { field: "nom", headerName: "Supplier Name", flex: 0.7 },
-    { field: "num", headerName: "Phone Number", flex: 0.7 },
+    { field: "telephone", headerName: "Phone Number", flex: 0.7 },
+    { field: "adresse", headerName: "Adress", flex: 0.7 },
+    { field: "email", headerName: "Email", flex: 0.7 },
     { field: "services", headerName: "Service Name", flex: 0.7 },
     {
       field: "actions",
@@ -136,6 +183,7 @@ const Supplier = () => {
       renderCell: ({ row }) => (
         <Button
           variant="contained"
+          disabled={!user?.isAdmin}
           sx={{
             backgroundColor: theme.palette.error.main,
             color: "#fff",
@@ -159,7 +207,9 @@ const Supplier = () => {
     <Box>
       <Toaster />
       <Header title="Suppliers" subTitle="List of Suppliers" />
-      <Box
+     {
+      user?.isAdmin && (
+        <Box
         sx={{
           display: "flex",
           justifyContent: "flex-end",
@@ -176,6 +226,8 @@ const Supplier = () => {
           Add Supplier
         </Button>
       </Box>
+      )
+     }
       <Box sx={{ height: 650, width: "99%", mx: "auto" }}>
         <DataGrid
           slots={{
@@ -203,6 +255,18 @@ const Supplier = () => {
           />
           <TextField
             margin="dense"
+            label="Supplier Email"
+            fullWidth
+            value={newSupplierData.email}
+            onChange={(e) =>
+              setNewSupplierData({
+                ...newSupplierData,
+                email: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
             label="Phone Number"
             fullWidth
             value={newSupplierData.phone}
@@ -210,6 +274,18 @@ const Supplier = () => {
               setNewSupplierData({
                 ...newSupplierData,
                 phone: e.target.value,
+              })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Supplier Adress"
+            fullWidth
+            value={newSupplierData.adress}
+            onChange={(e) =>
+              setNewSupplierData({
+                ...newSupplierData,
+                adress: e.target.value,
               })
             }
           />

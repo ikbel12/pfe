@@ -245,6 +245,7 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
       <List>
         {Array2.map((item) => {
           if (item.path === "team" && !user.isAdmin) return;
+          if(item.path === "permession" && !user.isAdmin) return;
           // check if the role of user = admin
           return (
             <ListItem key={item.path} disablePadding sx={{ display: "block" }}>

@@ -30,6 +30,9 @@ const PermissionUser = () => {
     supplierID: false,
     clientID: false,
   });
+  const [users, setUsers] = useState([]);
+  const [clients, setClients] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,19 +49,94 @@ const PermissionUser = () => {
       }
     };
 
+    const fetchUsers = async () => {
+      try {
+        const response = await userRequest.get("/user/allUsers");
+        setUsers(
+          response.data.map((user) => ({
+            label: user.nom,
+            value: user._id,
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    }
+    const fetchClients = async () => {
+      try {
+        const response = await userRequest.get("/client/getallclient");
+        setClients(
+          response.data.map((client) => ({
+            label: client.nom,
+            value: client._id,
+          }))
+        );
+      }
+      catch (error) {
+        console.error("Error fetching clients:", error);
+      }
+    }
+    const fetchSuppliers = async () => {
+      try {
+        const response = await userRequest.get("/fournisseur");
+        setSuppliers(
+          response.data.map((supplier) => ({
+            label: supplier.nom,
+            value: supplier._id,
+          }))
+        );
+      }
+      catch (error) {
+        console.error("Error fetching suppliers:", error);
+      }
+    }
+    fetchUsers();
+    fetchClients();
+    fetchSuppliers();
     fetchData();
   }, []);
 
-  const handleConfirmClose = (type) => {
-    setDialogOpen({ ...dialogOpen, [type]: false });
+  const handleConfirmClose = async(type) => {
+    try {
+      if(type === "userID") {
+        for(const user of userID) {
+          await userRequest.patch("/user/assignServicesToUser",{userId:user.value,serviceIds:serviceID.map(service => service.value)});
+          toast.success("User permissions updated successfully");
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
+      } else if(type === "supplierID") {
+        for(const supplier of supplierID) {
+          await userRequest.patch("/fournisseur/assignServicesToFournisseur",{fournisseurId:supplier.value,serviceIds:serviceID.map(service => service.value)});
+          toast.success("Supplier permissions updated successfully");
+          window.location.reload();
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
+      } else if(type === "clientID") {
+        for(const client of clientID) {
+          await userRequest.patch("/client/assignServicesToClient",{clientId:client.value,serviceIds:serviceID.map(service => service.value)});
+          toast.success("Client permissions updated successfully");
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
   };
 
   const handleCancel = (type) => {
-    handleConfirmClose(type);
+    setDialogOpen({ ...dialogOpen, [type]: false });
   };
-
-  const handleConfirmOpen = (type) => {
+  console.log(serviceID.map(service => service.value))
+  const handleConfirmOpen = async(type) => {
     setDialogOpen({ ...dialogOpen, [type]: true });
+   
   };
 
   const handleConfirmAction = (type) => {
@@ -98,6 +176,8 @@ const PermissionUser = () => {
               />
             )}
           />
+
+          
           <Divider sx={{ mt: 2, mb: 2 }} />
           <Typography variant="body1" gutterBottom>
             Choose the User ID :
@@ -107,11 +187,7 @@ const PermissionUser = () => {
               <Autocomplete
                 multiple
                 id="userID"
-                options={[
-                  { label: "User 1", value: "1" },
-                  { label: "User 2", value: "2" },
-                  { label: "User 3", value: "3" },
-                ]}
+                options={users}
                 value={userID}
                 onChange={(event, newValue) => setUserID(newValue)}
                 renderInput={(params) => (
@@ -142,11 +218,7 @@ const PermissionUser = () => {
               <Autocomplete
                 multiple
                 id="supplierID"
-                options={[
-                  { label: "Supplier 1", value: "1" },
-                  { label: "Supplier 2", value: "2" },
-                  { label: "Supplier 3", value: "3" },
-                ]}
+                options={suppliers}
                 value={supplierID}
                 onChange={(event, newValue) => setSupplierID(newValue)}
                 renderInput={(params) => (
@@ -177,11 +249,7 @@ const PermissionUser = () => {
               <Autocomplete
                 multiple
                 id="clientID"
-                options={[
-                  { label: "Client 1", value: "1" },
-                  { label: "Client 2", value: "2" },
-                  { label: "Client 3", value: "3" },
-                ]}
+                options={clients}
                 value={clientID}
                 onChange={(event, newValue) => setClientID(newValue)}
                 renderInput={(params) => (

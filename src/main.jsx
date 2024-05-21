@@ -107,7 +107,9 @@ const routes = (
         path="reclamation"
         element={
           <ProtectedRoute>
+            
             <ReclamationForm />
+           
           </ProtectedRoute>
         }
       />
@@ -123,7 +125,9 @@ const routes = (
         path="permession"
         element={
           <ProtectedRoute>
+            <ProtectAdminRoute>
             <PermessionUser />
+            </ProtectAdminRoute>
           </ProtectedRoute>
         }
       />
