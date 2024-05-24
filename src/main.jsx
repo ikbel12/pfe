@@ -15,14 +15,14 @@ import PieChart from "./page/pieChart/PieChart";
 import LineChart from "./page/lineChart/LineChart";
 import NotFound from "./page/notFound/NotFound";
 import ResetPasswordForm from "./page/auth/ResetPasswordForm";
-import ProfilePage from "./page/profile/ProfilePage";
-import Subscriptions from "./page/subscriptions/Subscriptions";
 import ReclamationForm from "./page/reclamation/ReclamationForm";
 import { persistor, store } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import SettingAlert from "./page/settingalert/SettingAlert";
 import ChangePassword from "./page/auth/ChangePassword";
- import PermessionUser from "./page/permession/PermessionUser";
+import PermessionUser from "./page/permession/PermessionUser";
+import Services from "./page/services/Services";
+import SeeAlerts from "./page/seeAlert/SeeAlerts";
 
 function ProtectedRoute({ children }) {
   // @ts-ignore
@@ -79,11 +79,19 @@ const routes = (
           </ProtectedRoute>
         }
       />
-      <Route
-        path="subscriptions"
+            <Route
+        path="seeAlert"
         element={
           <ProtectedRoute>
-            <Subscriptions />
+            <SeeAlerts />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="services"
+        element={
+          <ProtectedRoute>
+            <Services />
           </ProtectedRoute>
         }
       />
@@ -107,26 +115,16 @@ const routes = (
         path="reclamation"
         element={
           <ProtectedRoute>
-            
             <ReclamationForm />
-           
           </ProtectedRoute>
         }
       />
       <Route
-        path="profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
-          <Route
         path="permession"
         element={
           <ProtectedRoute>
             <ProtectAdminRoute>
-            <PermessionUser />
+              <PermessionUser />
             </ProtectAdminRoute>
           </ProtectedRoute>
         }

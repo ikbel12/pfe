@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
@@ -34,7 +34,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { grey } from "@mui/material/colors";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/apiCalls";
-
+import ProfileDialog from "../page/profile/ProfileDialog";
+import AddAlertOutlinedIcon from "@mui/icons-material/AddAlertOutlined";
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -83,19 +84,18 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
-/* hedhy 3anaser el side bar mtaa el partie el loula : naamlouu haja kima list feha les elements
- el kol w baed n3aaytoulha besmha w naamlou el esm.map besh tetawed aala kad les elements*/
+
 const Array1 = [
   { text: "Dashboard", icon: <HomeOutlinedIcon />, path: "/home" },
-  {
-    text: "Services List",
-    icon: <LocalActivityOutlinedIcon />,
-    path: "subscriptions",
-  },
   {
     text: "Suppliers List",
     icon: <ContactsOutlinedIcon />,
     path: "supplier",
+  },
+  {
+    text: "Services List",
+    icon: <LocalActivityOutlinedIcon />,
+    path: "services",
   },
   {
     text: "Clients List",
@@ -103,36 +103,32 @@ const Array1 = [
     path: "client",
   },
   {
-    text: "Setting Alert",
-    icon: <CalendarMonthOutlinedIcon />,
-    path: "alertsetting",
-  },
-];
-
-const Array2 = [
-  {
-    text: "Setting Profile",
-    icon: <PersonOutlinedIcon />,
-    path: "profile",
-  },
-  { text: "Manage Team", icon: <PeopleOutlinedIcon />, path: "team" },
-  {
     text: "Reclamation Form",
     icon: <ReportProblemOutlinedIcon />,
     path: "reclamation",
   },
   {
-    text: "User Permession ",
+    text: "Setting Alert",
+    icon: <CalendarMonthOutlinedIcon />,
+    path: "alertsetting",
+  },
+
+  {
+    text: " See All Alerts",
+    icon: <AddAlertOutlinedIcon />,
+    path: "seeAlert",
+  },
+];
+
+const Array2 = [
+  { text: "Manage Team", icon: <PeopleOutlinedIcon />, path: "team" },
+  {
+    text: "Add Permessions ",
     icon: <AddTaskOutlinedIcon />,
     path: "permession",
   },
 ];
-/*
-const Array3 = [
-  { text: "Bar Chart", icon: <BarChartOutlinedIcon />, path: "bar" },
-  { text: "Pie Chart", icon: <PieChartOutlineOutlinedIcon />, path: "pie" },
-  { text: "Line Chart", icon: <TimelineOutlinedIcon />, path: "line" },
-];*/
+
 const Array4 = [
   {
     text: "logout",
@@ -147,6 +143,16 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const dispatch = useDispatch();
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false); // State for ProfileDialog
+
+  const handleProfileDialogOpen = () => {
+    setProfileDialogOpen(true);
+  };
+
+  const handleProfileDialogClose = () => {
+    setProfileDialogOpen(false);
+  };
+
   return (
     <Drawer variant="permanent" open={open}>
       <DrawerHeader sx={{ display: "flex", alignItems: "center" }}>
@@ -184,8 +190,24 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
       />
       <Typography
         align="center"
-        sx={{ fontSize: open ? 17 : 0, transition: "0.25s" }}
+        sx={{
+          fontSize: open ? 17 : 0,
+          transition: "0.25s",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer", // Add cursor pointer for click indication
+          opacity: open ? 1 : 0, // Contrôle de l'opacité
+        }}
+        onClick={handleProfileDialogOpen} // Open ProfileDialog on click
       >
+        <Tooltip title="Modify" arrow>
+          <PersonOutlinedIcon
+            sx={{ fontSize: 17, mr: 1, transition: "0.25s" }}
+            onClick={handleProfileDialogOpen} // Open ProfileDialog on click
+            style={{ cursor: "pointer" }} // Add cursor pointer for click indication
+          />
+        </Tooltip>
         {`${user?.prenom} ${user?.nom}`}
       </Typography>
       <Typography
@@ -245,7 +267,7 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
       <List>
         {Array2.map((item) => {
           if (item.path === "team" && !user.isAdmin) return;
-          if(item.path === "permession" && !user.isAdmin) return;
+          if (item.path === "permession" && !user.isAdmin) return;
           // check if the role of user = admin
           return (
             <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
@@ -285,57 +307,18 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
           );
         })}
       </List>
-      {/*
-      <Divider />
+      {user.isAdmin && <Divider sx={{ mt: 2, mb: 2 }} />}
 
-      <List>
-        {Array3.map((item) => (
-          <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
-            <Tooltip title={open ? null : item.text} placement="left">
-              <ListItemButton
-                onClick={() => {
-                  navigate(item.path);
-                }}
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
-                  bgcolor:
-                    location.pathname === item.path
-                      ? theme.palette.mode === "dark"
-                        ? grey[800]
-                        : grey[300]
-                      : null,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  sx={{ opacity: open ? 1 : 0 }}
-                />
-              </ListItemButton>
-            </Tooltip>
-          </ListItem>
-        ))}
-      </List>*/}
-      <Divider />
       <List>
         {Array4.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
             <Tooltip title={open ? null : item.text} placement="left">
               <ListItemButton
                 onClick={() => {
-                  // navigate(item.path);
-                  if (item.function == "logout") {
+                  if (item.function === "logout") {
                     logout(dispatch);
+                  } else {
+                    navigate(item.path);
                   }
                 }}
                 sx={{
@@ -368,6 +351,12 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
           </ListItem>
         ))}
       </List>
+
+      {/* Add the ProfileDialog component */}
+      <ProfileDialog
+        open={profileDialogOpen}
+        handleClose={handleProfileDialogClose}
+      />
     </Drawer>
   );
 };

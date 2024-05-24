@@ -36,9 +36,7 @@ const SettingAlert = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await userRequest.get(
-          "/service/getallservices"
-        );
+        const response = await userRequest.get("/service/getallservices");
         setServices(response.data);
         setLoading(false);
       } catch (error) {
@@ -50,20 +48,17 @@ const SettingAlert = () => {
     fetchData();
   }, []);
 
-
-
-
   const handleConfirmClose = () => {
     setOpen(false);
   };
 
-  const handleConfirm = async() => {
+  const handleConfirm = async () => {
     setConfirm(true);
     setOpen(false);
     try {
       const response = await userRequest.post(`/settings/${user._id}`, {
         globalNotificationDays: globalDays,
-        customNotifications:[]
+        customNotifications: [],
       });
       toast.success(response.data.message, {
         duration: 4000,
@@ -93,10 +88,9 @@ const SettingAlert = () => {
         customNotifications: [
           {
             serviceId: selectedService,
-            notificationDays: days
-          }
-        ]
-
+            notificationDays: days,
+          },
+        ],
       });
       toast.success(response.data.message, {
         duration: 4000,
@@ -123,13 +117,13 @@ const SettingAlert = () => {
         <CardContent>
           <Typography variant="body1" gutterBottom>
             Choose your date to receive an alert to remind you about the
-            expiration of all your subscriptions.
+            expiration of all your services.
           </Typography>
           <TextField
             label="Number of days after which you will receive your global alert:"
             variant="filled"
             value={globalDays}
-            onChange={e => setGlobalDays(e.target.value)}
+            onChange={(e) => setGlobalDays(e.target.value)}
             fullWidth
             sx={{ mb: 3 }}
           />
@@ -146,7 +140,7 @@ const SettingAlert = () => {
           <Divider sx={{ mt: 2, mb: 2 }} />
           <Typography variant="body1" gutterBottom>
             To customize your Alert to remind you about the date of expiration
-            for one subscription, enter your data here:
+            for one service, enter your data here:
           </Typography>
 
           <Autocomplete
@@ -156,8 +150,7 @@ const SettingAlert = () => {
             }))}
             onChange={(event, newValue) => {
               setSelectedService(newValue.value);
-            }
-            }
+            }}
             loading={loading}
             renderInput={(params) => (
               <TextField
@@ -174,7 +167,7 @@ const SettingAlert = () => {
             label="Number of days after which you will receive your alert:"
             variant="filled"
             value={days}
-            onChange={e => setDays(e.target.value)}
+            onChange={(e) => setDays(e.target.value)}
             fullWidth
             sx={{ mb: 3 }}
           />
@@ -191,8 +184,6 @@ const SettingAlert = () => {
           </Box>
         </CardContent>
       </Card>
-
-
 
       <Dialog
         open={open}

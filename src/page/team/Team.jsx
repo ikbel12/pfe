@@ -1,5 +1,5 @@
 import React, { useMemo, useEffect, useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import {
   Button,
   useTheme,
@@ -10,12 +10,15 @@ import {
   TextField,
   MenuItem,
   Typography,
+  IconButton,
+  Box,
 } from "@mui/material";
-import { Box } from "@mui/material";
 import {
   AdminPanelSettingsOutlined,
   LockOpenOutlined,
   DeleteOutline,
+  EditOutlined,
+  UpdateOutlined,
 } from "@mui/icons-material";
 import Header from "../../components/Header";
 import axios from "axios";
@@ -27,8 +30,10 @@ const Team = () => {
   const [users, setUsers] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
+  const [editUserDialog, setEditUserDialog] = useState(false);
   const [modifyRoleDialog, setModifyRoleDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [userToEdit, setUserToEdit] = useState(null);
   const [userToModifyRole, setUserToModifyRole] = useState("");
   const [newUserData, setNewUserData] = useState({
     prenom: "",
@@ -125,19 +130,40 @@ const Team = () => {
       {
         field: "actions",
         headerName: "Actions",
-        width: 120,
+        width: 150,
         align: "center",
         headerAlign: "center",
         renderCell: ({ row }) => (
-          <Button
-            variant="contained"
-            color="error"
-            size="small"
-            startIcon={<DeleteOutline />}
-            onClick={() => handleDeleteUserClick(row._id)}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+            }}
           >
-            Delete
-          </Button>
+            <IconButton
+              color="error"
+              size="small"
+              onClick={() => handleDeleteUserClick(row._id)}
+            >
+              <DeleteOutline />
+            </IconButton>
+            <IconButton
+              color="primary"
+              size="small"
+              onClick={() => handleEditUserClick(row)}
+            >
+              <EditOutlined />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => handleModifyRoleClick(row._id)}
+              sx={{ color: theme.palette.warning.main }}
+            >
+              <UpdateOutlined />
+            </IconButton>
+          </Box>
         ),
       },
     ],
@@ -159,6 +185,33 @@ const Team = () => {
       setUserToDelete(null);
     } catch (error) {
       console.error("Error deleting user:", error);
+    }
+  };
+
+  const handleEditUserClick = (user) => {
+    setUserToEdit(user);
+    setEditUserDialog(true);
+  };
+
+  const handleEditUser = async () => {
+    try {
+      await axios.put(`http://localhost:3000/api/user/${userToEdit._id}`, {
+        prenom: userToEdit.prenom,
+        nom: userToEdit.nom,
+        email: userToEdit.email,
+        num: userToEdit.num,
+      });
+
+      setEditUserDialog(false);
+      setUserToEdit(null);
+      fetchUsers();
+    } catch (error) {
+      console.error("Error editing user:", error);
+      toast.error("Failed to edit user.", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
     }
   };
 
@@ -241,8 +294,6 @@ const Team = () => {
       >
         <Header title={"TEAM"} subTitle={"Managing the Team Members"} />
         <Box sx={{ marginLeft: "auto" }}>
-          {" "}
-          {/* Placez la modification ici */}
           <Button
             variant="contained"
             color="primary"
@@ -250,18 +301,14 @@ const Team = () => {
           >
             Create User
           </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => setModifyRoleDialog(true)}
-            sx={{ marginLeft: "10px" }}
-          >
-            Modify Role
-          </Button>
         </Box>
       </Box>
+     
       <Box sx={{ height: 600, mx: "auto", overflowY: "auto" }}>
         <DataGrid
+        slots={{
+          toolbar: GridToolbar,
+        }}
           rows={users}
           // @ts-ignore
           columns={columns}
@@ -271,7 +318,7 @@ const Team = () => {
         />
       </Box>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Add New User</DialogTitle>
+        <DialogTitle>Create User</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -366,6 +413,53 @@ const Team = () => {
           >
             Delete
           </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={editUserDialog} onClose={() => setEditUserDialog(false)}>
+        <DialogTitle>Edit User</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="First Name"
+            fullWidth
+            value={userToEdit?.prenom}
+            onChange={(e) =>
+              setUserToEdit({ ...userToEdit, prenom: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Last Name"
+            fullWidth
+            value={userToEdit?.nom}
+            onChange={(e) =>
+              setUserToEdit({ ...userToEdit, nom: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Email"
+            type="email"
+            fullWidth
+            value={userToEdit?.email}
+            onChange={(e) =>
+              setUserToEdit({ ...userToEdit, email: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Phone"
+            fullWidth
+            value={userToEdit?.num}
+            onChange={(e) =>
+              setUserToEdit({ ...userToEdit, num: e.target.value })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditUserDialog(false)}>Cancel</Button>
+          <Button onClick={handleEditUser}>Save</Button>
         </DialogActions>
       </Dialog>
       <Dialog

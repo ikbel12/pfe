@@ -6,7 +6,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   TextField,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material";
@@ -101,9 +103,11 @@ const ReclamationForm = () => {
     setOpenConfirmDialog(true);
   };
 
-  const handleConfirmDelete = async() => {
+  const handleConfirmDelete = async () => {
     try {
-      await userRequest.delete(`/reclamation/delete-reclamation/${deleteReclamationId}`);
+      await userRequest.delete(
+        `/reclamation/delete-reclamation/${deleteReclamationId}`
+      );
       toast.success("Reclamation deleted successfully", {
         duration: 4000,
         position: "top-center",
@@ -118,7 +122,6 @@ const ReclamationForm = () => {
         style: { background: "red", color: "white" },
       });
     }
-    
   };
 
   const handleCancelDelete = () => {
@@ -127,35 +130,39 @@ const ReclamationForm = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "Reclamation ID", width: 180, flex: 1 },
-    { field: "subject", headerName: "Subject", width: 180 },
-    { field: "category", headerName: "Category", width: 180 },
+    { field: "id", headerName: "Reclamation ID", width: 180, flex: 0.5 },
+    { field: "subject", headerName: "Subject", width: 180, flex: 0.35 },
+    { field: "category", headerName: "Category", width: 180, flex: 0.35 },
     { field: "product", headerName: "Product", width: 180 },
     { field: "serviceName", headerName: "Service Name", width: 180 },
     { field: "type", headerName: "Type", width: 180 },
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      width: 150,
       align: "center",
       headerAlign: "center",
       renderCell: ({ row }) => (
-        <Button
-          variant="contained"
+        <Box
           sx={{
-            backgroundColor: "#fff",
-            color: theme.palette.error.main,
-            "&:hover": {
-              backgroundColor: theme.palette.error.main,
-              color: "#fff",
-            },
+            mt: 1, px: 1,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 1,
           }}
-          size="small"
-          startIcon={<DeleteOutline />}
-          onClick={() => handleDeleteClick(row.id)}
         >
-          Delete
-        </Button>
+          <Tooltip title="Delete Reclamation">
+            <IconButton
+              color="error"
+              size="small"
+              
+              onClick={() => handleDeleteClick(row._id)}
+            >
+              <DeleteOutline />
+            </IconButton>
+          </Tooltip>
+        </Box>
       ),
     },
   ];

@@ -10,9 +10,12 @@ import {
   TextField,
   Typography,
   useTheme,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
@@ -22,16 +25,7 @@ const Client = () => {
   const theme = useTheme();
   // @ts-ignore
   const user = useSelector((state) => state.user?.userInfo);
-  const [clients, setClients] = useState([
-    {
-      id: "",
-      nom: "",
-      adresse: "",
-      telephone: "",
-      email: "",
-      services: [],
-    }
-  ]);
+  const [clients, setClients] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteClientId, setDeleteClientId] = useState(null);
@@ -45,21 +39,20 @@ const Client = () => {
     email: "",
     services: [],
   });
-
+  const [editMode, setEditMode] = useState(false);
+  const [editClientId, setEditClientId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await userRequest.get(
-          "/service/getallservices"
-        );
+        const response = await userRequest.get("/service/getallservices");
         setServices(response.data);
         setServiceOptions(
           response.data.map((service) => ({
             label: service.nom,
             value: service._id,
           }))
-        )
+        );
       } catch (error) {
         console.error("Error fetching services:", error);
       }
@@ -69,34 +62,25 @@ const Client = () => {
       try {
         const response = await userRequest.get("/client/getallclient");
         setClients(
-          response.data.map(
-            (
-              /** @type {{ _id: any; nom: any; telephone: any; adresse: any; email: any; services: any; }} */ supplier
-            ) => ({
-              id: supplier._id,
-              nom: supplier.nom,
-              telephone: supplier.telephone,
-              adresse: supplier.adresse,
-              email: supplier.email,
-              services: supplier.services.map((service) => service.nom).join(", "),
-            })
-          )
+          response.data.map((client) => ({
+            id: client._id,
+            nom: client.nom,
+            telephone: client.telephone,
+            adresse: client.adresse,
+            email: client.email,
+            services: client.services.map((service) => service.nom).join(", "),
+          }))
         );
       } catch (error) {
-        console.error("Error fetching suppliers:", error);
+        console.error("Error fetching clients:", error);
       }
     };
 
     fetchClients();
-
     fetchData();
   }, []);
 
-
-
-
-
-  const handleDeleteClick = async(id) => {
+  const handleDeleteClick = async (id) => {
     try {
       await userRequest.delete(`/client/deleteclient/${id}`);
       toast.success("Client deleted successfully", {
@@ -104,7 +88,7 @@ const Client = () => {
         position: "top-center",
         style: { background: "green", color: "white" },
       });
-      window.location.reload();      
+      setClients(clients.filter((client) => client.id !== id));
     } catch (error) {
       console.log(error);
       toast.error("Error deleting client", {
@@ -116,13 +100,8 @@ const Client = () => {
   };
 
   const handleConfirmDelete = () => {
-    setClients(clients.filter((client) => client.id !== deleteClientId));
+    handleDeleteClick(deleteClientId);
     setOpenConfirmDialog(false);
-    toast.success("Client deleted successfully", {
-      duration: 4000,
-      position: "top-center",
-      style: { background: "green", color: "white" },
-    });
   };
 
   const handleCancelDelete = () => {
@@ -146,9 +125,9 @@ const Client = () => {
         telephone: "",
         adresse: "",
         email: "",
-        services: []
+        services: [],
       });
-      toast.success("Supplier added successfully", {
+      toast.success("Client added successfully", {
         duration: 4000,
         position: "top-center",
         style: { background: "green", color: "white" },
@@ -156,13 +135,69 @@ const Client = () => {
       window.location.reload();
     } catch (error) {
       console.log(error);
-      toast.error("Error adding supplier", {
+      toast.error("Error adding client", {
         duration: 4000,
         position: "top-center",
         style: { background: "red", color: "white" },
       });
     }
-  }
+  };
+
+  const handleEditClick = (id) => {
+    const client = clients.find((client) => client.id === id);
+    setEditClientId(id);
+    setNewClientData({
+      nom: client.nom,
+      adresse: client.adresse,
+      telephone: client.telephone,
+      email: client.email,
+      services: client.services.split(", "),
+    });
+    setSelectedService(
+      services
+        .filter((service) => client.services.includes(service.nom))
+        .map((service) => ({ label: service.nom, value: service._id }))
+    );
+    setEditMode(true);
+    setOpenDialog(true);
+  };
+
+  const handleUpdateClient = async () => {
+    try {
+      await userRequest.put(`/client/updateclient/${editClientId}`, {
+        nom: newClientData.nom,
+        telephone: newClientData.telephone,
+        adresse: newClientData.adresse,
+        email: newClientData.email,
+        services: selectedService.map((service) => service.value),
+      });
+
+      setOpenDialog(false);
+      setEditMode(false);
+      setEditClientId(null);
+      setNewClientData({
+        nom: "",
+        telephone: "",
+        adresse: "",
+        email: "",
+        services: [],
+      });
+      toast.success("Client updated successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+      toast.error("Error updating client", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+  };
+
   const columns = [
     { field: "id", headerName: "ID", width: 100, flex: 0.7 },
     { field: "nom", headerName: "Name", flex: 0.7 },
@@ -173,29 +208,32 @@ const Client = () => {
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      width: 150,
       align: "center",
       headerAlign: "center",
       renderCell: ({ row }) => (
-        <Button
-          variant="contained"
-          disabled={!user?.isAdmin}
-          sx={{
-            backgroundColor: theme.palette.error.main,
-            color: "#fff",
-            "&:hover": {
-              backgroundColor: theme.palette.error.main,
-            },
-          }}
-          size="small"
-          startIcon={<DeleteOutline />}
-          onClick={() => handleDeleteClick(row.id)}
-        >
-          Delete
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+          <Tooltip title="Delete">
+            <IconButton
+              onClick={() => {
+                setDeleteClientId(row.id);
+                setOpenConfirmDialog(true);
+              }}
+              sx={{ color: "error.main" }}
+            >
+              <DeleteOutline />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Edit">
+            <IconButton
+              onClick={() => handleEditClick(row.id)}
+              sx={{ color: "primary.main" }}
+            >
+              <EditOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
       ),
-      sortable: false,
-      filterable: false,
     },
   ];
 
@@ -203,27 +241,36 @@ const Client = () => {
     <Box>
       <Toaster />
       <Header title="Clients" subTitle="List of Clients" />
-      {
-        user?.isAdmin && (
-          <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          mb: 2,
-          px: 2,
-        }}
-      >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenDialog(true)}
+      {user?.isAdmin && (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            alignItems: "center",
+            mb: 2,
+            px: 2,
+          }}
         >
-          Add Client
-        </Button>
-      </Box>
-        )
-      }
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              setNewClientData({
+                nom: "",
+                adresse: "",
+                telephone: "",
+                email: "",
+                services: [],
+              });
+              setSelectedService([]);
+              setEditMode(false);
+              setOpenDialog(true);
+            }}
+          >
+            Add Client
+          </Button>
+        </Box>
+      )}
       <Box sx={{ height: 650, width: "99%", mx: "auto" }}>
         <DataGrid
           slots={{
@@ -235,7 +282,7 @@ const Client = () => {
         />
       </Box>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Add New Client</DialogTitle>
+        <DialogTitle>{editMode ? "Edit Client" : "Add New Client"}</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
@@ -290,20 +337,17 @@ const Client = () => {
             freeSolo
             value={selectedService}
             getOptionLabel={(option) => option.label}
-            isOptionEqualToValue={(option, value) => option.value === value.value}
-            options={services.map((service) => ({
-              label: service.nom,
-              value: service._id, // ou tout autre identifiant unique si nécessaire
-            }))}
+            isOptionEqualToValue={(option, value) =>
+              option.value === value.value
+            }
+            options={serviceOptions}
             onChange={(event, newValue) => {
               setSelectedService(newValue);
-            }
-            }
-            // loading={loading}
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Subscription Name"
+                label="Service Name"
                 variant="filled"
                 fullWidth
                 sx={{ mb: 3 }}
@@ -313,7 +357,9 @@ const Client = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddClient}>Add</Button>
+          <Button onClick={editMode ? handleUpdateClient : handleAddClient}>
+            {editMode ? "Update" : "Add"}
+          </Button>
         </DialogActions>
       </Dialog>
 

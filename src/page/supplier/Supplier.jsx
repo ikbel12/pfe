@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -9,77 +8,55 @@ import {
   DialogTitle,
   TextField,
   Typography,
-  useTheme,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
 import { useSelector } from "react-redux";
+import SyncIcon from "@mui/icons-material/Sync";
 
 const Supplier = () => {
-  const theme = useTheme();
   // @ts-ignore
   const user = useSelector((state) => state.user?.userInfo);
-  const [services, setServices] = useState([]);
-  const [selectedService, setSelectedService] = useState([]);
-  const [suppliers, setSuppliers] = useState([
-    {
-      id: "",
-      nom: "",
-      telephone: "",
-      adresse: "",
-      email: "",
-      services: [],
-    },
-
-  ]);
+  const [suppliers, setSuppliers] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteSupplierId, setDeleteSupplierId] = useState(null);
-  const [serviceOptions, setServiceOptions] = useState([]);
   const [newSupplierData, setNewSupplierData] = useState({
     supplierName: "",
     phone: "",
-    adress:"",
-    email:"",
-    services: [],
+    address: "",
+    email: "",
+    key1: "",
+    key2: "",
+    key3: "",
   });
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await userRequest.get(
-          "/service/getallservices"
-        );
-        setServices(response.data);
-        setServiceOptions(
-          response.data.map((service) => ({
-            label: service.nom,
-            value: service._id,
-          }))
-        )
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      }
-    };
+  const [editMode, setEditMode] = useState(false);
+  const [editSupplierId, setEditSupplierId] = useState(null);
+  const [showKeys, setShowKeys] = useState(false);
+  const [showHint, setShowHint] = useState(false);
+  const [error, setError] = useState("");
 
+  useEffect(() => {
     const fetchSuppliers = async () => {
       try {
         const response = await userRequest.get("/fournisseur");
         setSuppliers(
-          response.data.map(
-            (
-              /** @type {{ _id: any; nom: any; telephone: any; adresse: any; email: any; services: any; }} */ supplier
-            ) => ({
-              id: supplier._id,
-              nom: supplier.nom,
-              telephone: supplier.telephone,
-              adresse: supplier.adresse,
-              email: supplier.email,
-              services: supplier.services.map((service) => service.nom).join(", "),
-            })
-          )
+          response.data.map((supplier) => ({
+            id: supplier._id,
+            nom: supplier.nom,
+            telephone: supplier.telephone,
+            adresse: supplier.adresse,
+            email: supplier.email,
+            key1: supplier.key1 || "",
+            key2: supplier.key2 || "",
+            key3: supplier.key3 || "",
+          }))
         );
       } catch (error) {
         console.error("Error fetching suppliers:", error);
@@ -87,20 +64,27 @@ const Supplier = () => {
     };
 
     fetchSuppliers();
-    fetchData();
   }, []);
 
-  const handleDeleteClick = async(id) => {
+  const handleDeleteClick = (id) => {
+    setDeleteSupplierId(id);
+    setOpenConfirmDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
     try {
-      await userRequest.delete(`/fournisseur/${id}`);
+      await userRequest.delete(`/fournisseur/${deleteSupplierId}`);
+      setSuppliers(
+        suppliers.filter((supplier) => supplier.id !== deleteSupplierId)
+      );
+      setOpenConfirmDialog(false);
       toast.success("Supplier deleted successfully", {
         duration: 4000,
         position: "top-center",
         style: { background: "green", color: "white" },
       });
-      window.location.reload();      
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Error deleting supplier", {
         duration: 4000,
         position: "top-center",
@@ -109,28 +93,31 @@ const Supplier = () => {
     }
   };
 
-  const handleConfirmDelete = () => {
-    setSuppliers(suppliers.filter((supplier) => supplier.id !== deleteSupplierId));
-    setOpenConfirmDialog(false);
-    toast.success("Supplier deleted successfully", {
-      duration: 4000,
-      position: "top-center",
-      style: { background: "green", color: "white" },
-    });
-  };
-
   const handleCancelDelete = () => {
     setDeleteSupplierId(null);
     setOpenConfirmDialog(false);
   };
+
   const handleAddSupplier = async () => {
+    if (
+      showKeys &&
+      (!newSupplierData.key1 || !newSupplierData.key2 || !newSupplierData.key3)
+    ) {
+      setError(
+        "Key 1, Key 2, and Key 3 are required if the supplier name contains 'OVHcloud'"
+      );
+      return;
+    }
+
     try {
       const response = await userRequest.post("/fournisseur/create", {
         nom: newSupplierData.supplierName,
         telephone: newSupplierData.phone,
-        adresse: newSupplierData.adress,
+        adresse: newSupplierData.address,
         email: newSupplierData.email,
-        services: selectedService.map((service) => service.value),
+        key1: newSupplierData.key1,
+        key2: newSupplierData.key2,
+        key3: newSupplierData.key3,
       });
       setSuppliers([
         ...suppliers,
@@ -140,117 +127,208 @@ const Supplier = () => {
           telephone: response.data.telephone,
           adresse: response.data.adresse,
           email: response.data.email,
-          services: response.data.services.map((service) => service.nom).join(", "),
         },
       ]);
-
       setOpenDialog(false);
       setNewSupplierData({
         supplierName: "",
         phone: "",
-        adress:"",
-        email:"",
-        services: [],
+        address: "",
+        email: "",
+        key1: "",
+        key2: "",
+        key3: "",
       });
       toast.success("Supplier added successfully", {
         duration: 4000,
         position: "top-center",
         style: { background: "green", color: "white" },
       });
-      window.location.reload();
     } catch (error) {
-      console.log(error);
+      console.error(error);
       toast.error("Error adding supplier", {
         duration: 4000,
         position: "top-center",
         style: { background: "red", color: "white" },
       });
     }
-  }
+  };
+
+  const handleEditClick = (id) => {
+    const supplier = suppliers.find((supplier) => supplier.id === id);
+    setEditSupplierId(id);
+    setNewSupplierData({
+      supplierName: supplier.nom,
+      phone: supplier.telephone,
+      address: supplier.adresse,
+      email: supplier.email,
+      key1: supplier.key1,
+      key2: supplier.key2,
+      key3: supplier.key3,
+    });
+    setEditMode(true);
+    setOpenDialog(true);
+    setShowKeys(supplier.nom.includes("OVHcloud"));
+  };
+
+  const handleUpdateSupplier = async () => {
+    if (
+      showKeys &&
+      (!newSupplierData.key1 || !newSupplierData.key2 || !newSupplierData.key3)
+    ) {
+      setError(
+        "Key 1, Key 2, and Key 3 are required if the supplier name contains 'OVHcloud'"
+      );
+      return;
+    }
+
+    try {
+      const response = await userRequest.put(`/fournisseur/${editSupplierId}`, {
+        nom: newSupplierData.supplierName,
+        telephone: newSupplierData.phone,
+        adresse: newSupplierData.address,
+        email: newSupplierData.email,
+        key1: newSupplierData.key1,
+        key2: newSupplierData.key2,
+        key3: newSupplierData.key3,
+      });
+
+      setSuppliers(
+        suppliers.map((supplier) =>
+          supplier.id === editSupplierId
+            ? {
+                ...supplier,
+                nom: response.data.nom,
+                telephone: response.data.telephone,
+                adresse: response.data.adresse,
+                email: response.data.email,
+              }
+            : supplier
+        )
+      );
+
+      setOpenDialog(false);
+      setNewSupplierData({
+        supplierName: "",
+        phone: "",
+        address: "",
+        email: "",
+        key1: "",
+        key2: "",
+        key3: "",
+      });
+      setEditMode(false);
+      setEditSupplierId(null);
+      toast.success("Supplier updated successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Error updating supplier", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+  };
+
   const columns = [
     { field: "id", headerName: "ID", width: 100, flex: 0.7 },
     { field: "nom", headerName: "Supplier Name", flex: 0.7 },
     { field: "telephone", headerName: "Phone Number", flex: 0.7 },
-    { field: "adresse", headerName: "Adress", flex: 0.7 },
+    { field: "adresse", headerName: "Address", flex: 0.7 },
     { field: "email", headerName: "Email", flex: 0.7 },
-    { field: "services", headerName: "Service Name", flex: 0.7 },
     {
       field: "actions",
       headerName: "Actions",
-      width: 120,
+      width: 150,
       align: "center",
       headerAlign: "center",
       renderCell: ({ row }) => (
-        <Button
-          variant="contained"
-          disabled={!user?.isAdmin}
-          sx={{
-            backgroundColor: theme.palette.error.main,
-            color: "#fff",
-            "&:hover": {
-              backgroundColor: theme.palette.error.main,
-            },
-          }}
-          size="small"
-          startIcon={<DeleteOutline />}
-          onClick={() => handleDeleteClick(row.id)}
-        >
-          Delete
-        </Button>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+          <Tooltip title="Delete">
+            <IconButton
+              onClick={() => handleDeleteClick(row.id)}
+              sx={{ color: "error.main" }}
+            >
+              <DeleteOutline />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Edit">
+            <IconButton
+              onClick={() => handleEditClick(row.id)}
+              sx={{ color: "primary.main" }}
+            >
+              <EditOutlinedIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
       ),
-      sortable: false,
-      filterable: false,
     },
   ];
+
+  const handleSyncClick = async () => {};
+
+  const handleSupplierNameChange = (e) => {
+    const value = e.target.value;
+    setNewSupplierData({
+      ...newSupplierData,
+      supplierName: value,
+    });
+    setShowKeys(value.includes("OVHcloud"));
+  };
 
   return (
     <Box>
       <Toaster />
-      <Header title="Suppliers" subTitle="List of Suppliers" />
-     {
-      user?.isAdmin && (
-        <Box
-        sx={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-          mb: 2,
-          px: 2,
-        }}
+      <Header title="Suppliers" subTitle="List of suppliers" />
+      <Box
+        display="flex"
+        justifyContent="flex-end"
+        alignItems="center"
+        mb={2}
+        px={2}
       >
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setOpenDialog(true)}
-        >
-          Add Supplier
-        </Button>
+        <Tooltip title="Synchronize">
+          <IconButton onClick={handleSyncClick} color="primary">
+            <SyncIcon />
+          </IconButton>
+        </Tooltip>
+        {user?.isAdmin && (
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setOpenDialog(true)}
+          >
+            Add Supplier
+          </Button>
+        )}
       </Box>
-      )
-     }
       <Box sx={{ height: 650, width: "99%", mx: "auto" }}>
         <DataGrid
-          slots={{
-            toolbar: GridToolbar,
-          }}
+          slots={{ toolbar: GridToolbar }}
           rows={suppliers}
           // @ts-ignore
           columns={columns}
         />
       </Box>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Add New Supplier</DialogTitle>
+        <DialogTitle>
+          {editMode ? "Edit Supplier" : "Add New Supplier"}
+        </DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
             label="Supplier Name"
             fullWidth
             value={newSupplierData.supplierName}
-            onChange={(e) =>
-              setNewSupplierData({
-                ...newSupplierData,
-                supplierName: e.target.value,
-              })
+            onChange={handleSupplierNameChange}
+            onFocus={() => setShowHint(true)}
+            onBlur={() => setShowHint(false)}
+            helperText={
+              showHint ? "If your supplier is OVHcloud, write it correctly" : ""
             }
           />
           <TextField
@@ -259,10 +337,7 @@ const Supplier = () => {
             fullWidth
             value={newSupplierData.email}
             onChange={(e) =>
-              setNewSupplierData({
-                ...newSupplierData,
-                email: e.target.value,
-              })
+              setNewSupplierData({ ...newSupplierData, email: e.target.value })
             }
           />
           <TextField
@@ -271,57 +346,85 @@ const Supplier = () => {
             fullWidth
             value={newSupplierData.phone}
             onChange={(e) =>
-              setNewSupplierData({
-                ...newSupplierData,
-                phone: e.target.value,
-              })
+              setNewSupplierData({ ...newSupplierData, phone: e.target.value })
             }
           />
           <TextField
             margin="dense"
-            label="Supplier Adress"
+            label="Supplier Address"
             fullWidth
-            value={newSupplierData.adress}
+            value={newSupplierData.address}
             onChange={(e) =>
               setNewSupplierData({
                 ...newSupplierData,
-                adress: e.target.value,
+                address: e.target.value,
               })
             }
           />
-
-            <Autocomplete
-            multiple
-            freeSolo
-            value={selectedService}
-            getOptionLabel={(option) => option.label}
-            isOptionEqualToValue={(option, value) => option.value === value.value}
-            options={services.map((service) => ({
-              label: service.nom,
-              value: service._id, // ou tout autre identifiant unique si nécessaire
-            }))}
-            onChange={(event, newValue) => {
-              setSelectedService(newValue);
-            }
-            }
-            // loading={loading}
-            renderInput={(params) => (
+          {showKeys && (
+            <>
               <TextField
-                {...params}
-                label="Subscription Name"
-                variant="filled"
+                margin="dense"
+                label="Key 1"
                 fullWidth
-                sx={{ mb: 3 }}
+                value={newSupplierData.key1}
+                onChange={(e) =>
+                  setNewSupplierData({
+                    ...newSupplierData,
+                    key1: e.target.value,
+                  })
+                }
+                required
+                error={showKeys && !newSupplierData.key1}
+                helperText={
+                  showKeys && !newSupplierData.key1 ? "Key 1 is required" : ""
+                }
               />
-            )}
-          />
+              <TextField
+                margin="dense"
+                label="Key 2"
+                fullWidth
+                value={newSupplierData.key2}
+                onChange={(e) =>
+                  setNewSupplierData({
+                    ...newSupplierData,
+                    key2: e.target.value,
+                  })
+                }
+                required
+                error={showKeys && !newSupplierData.key2}
+                helperText={
+                  showKeys && !newSupplierData.key2 ? "Key 2 is required" : ""
+                }
+              />
+              <TextField
+                margin="dense"
+                label="Key 3"
+                fullWidth
+                value={newSupplierData.key3}
+                onChange={(e) =>
+                  setNewSupplierData({
+                    ...newSupplierData,
+                    key3: e.target.value,
+                  })
+                }
+                required
+                error={showKeys && !newSupplierData.key3}
+                helperText={
+                  showKeys && !newSupplierData.key3 ? "Key 3 is required" : ""
+                }
+              />
+            </>
+          )}
+          {error && <Typography color="error">{error}</Typography>}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleAddSupplier}>Add</Button>
+          <Button onClick={editMode ? handleUpdateSupplier : handleAddSupplier}>
+            {editMode ? "Update" : "Add"}
+          </Button>
         </DialogActions>
       </Dialog>
-
       <Dialog open={openConfirmDialog} onClose={handleCancelDelete}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
