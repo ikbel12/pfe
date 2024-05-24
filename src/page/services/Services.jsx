@@ -52,15 +52,20 @@ const Services = () => {
   const [expiryDate, setExpiryDate] = useState("");
   const [isAutocompleteSelected, setIsAutocompleteSelected] = useState(false);
 
+  // Get the current date
+  const today = new Date(newSubscriptionData.date_debut);
+  today.setDate(today.getDate() + 1);
+  // Format the date as YYYY-MM-DD
+  const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
-        const response = await userRequest.get("/service/getserviceswithuser");
+        const response = await userRequest.get("/service/getAllServices");
         setSubscriptions(
           response.data.map((subscription) => ({
             id: subscription._id,
             nom: subscription.nom,
-            fournisseur: subscription.fournisseur,
+            fournisseur: subscription.fournisseur.nom,
             date_debut: subscription.date_debut,
             date_fin: subscription.date_fin,
             statut: subscription.statut,
@@ -74,8 +79,13 @@ const Services = () => {
 
     const fetchSuppliers = async () => {
       try {
-        const response = await userRequest.get("/suppliers");
-        setSuppliers(response.data);
+        const response = await userRequest.get("/fournisseur");
+        response.data.map((supplier) => {
+          setSuppliers((prevSuppliers) => [
+            { value: supplier._id, label: supplier.nom },
+          ]);
+        }
+        );
       } catch (error) {
         console.log(error);
       }
@@ -84,7 +94,7 @@ const Services = () => {
     fetchSubscriptions();
     fetchSuppliers();
   }, []);
-
+  console.log(newSubscriptionData);
   const columns = [
     { field: "id", headerName: "ID", width: 100, flex: 0.7 },
     {
@@ -198,28 +208,23 @@ const Services = () => {
 
   const handleAddSubscription = async () => {
     try {
-      const response = await userRequest.post(
+     await userRequest.post(
         "/service/create",
-        newSubscriptionData
-      );
-      setSubscriptions([
-        ...subscriptions,
         {
-          id: response.data._id,
-          nom: response.data.nom,
-          fournisseur: response.data.fournisseur,
-          date_debut: response.data.date_debut,
-          date_fin: response.data.date_fin,
-          statut: response.data.statut,
-          type: response.data.type,
+          ...newSubscriptionData,
+          fournisseurId: newSubscriptionData.fournisseur,
         },
-      ]);
+      );
+      
       setOpenDialog(false);
       toast.success("Service added successfully", {
         duration: 4000,
         position: "top-center",
         style: { background: "green", color: "white" },
       });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.log(error);
       toast.error("Failed to add service", {
@@ -285,8 +290,9 @@ const Services = () => {
 
   const handleConfirmUpdate = async () => {
     try {
-      await userRequest.put(`/service/updateservices/${updateSubscriptionId}`, {
-        date_fin: expiryDate,
+      await userRequest.patch(`/service/renewService`, {
+        numberOfMonths: expiryDate,
+        serviceId:updateSubscriptionId,
       });
       setOpenUpdateDialog(false);
       toast.success("Service updated successfully", {
@@ -294,13 +300,9 @@ const Services = () => {
         position: "top-center",
         style: { background: "green", color: "white" },
       });
-      setSubscriptions((prevSubscriptions) =>
-        prevSubscriptions.map((subscription) =>
-          subscription.id === updateSubscriptionId
-            ? { ...subscription, date_fin: expiryDate }
-            : subscription
-        )
-      );
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.log(error);
       toast.error("Failed to update service", {
@@ -318,7 +320,7 @@ const Services = () => {
 
   const handleConfirmEdit = async () => {
     try {
-      await userRequest.put(
+      await userRequest.patch(
         `/service/updateservice/${editSubscriptionId}`,
         editSubscriptionData
       );
@@ -350,8 +352,26 @@ const Services = () => {
     setOpenEditDialog(false);
   };
 
-  const handleSyncClick = async () => {};
-
+  const handleSyncClick = async () => {
+    try {
+      await userRequest.get("/service/import-ovh-services");
+      toast.success("Services synchronized successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to synchronize services", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+  };
   return (
     <Box>
       <Toaster />
@@ -387,11 +407,11 @@ const Services = () => {
         <DialogTitle>Add Service</DialogTitle>
         <DialogContent>
           <Autocomplete
-            options={suppliers.map((option) => option.nom)}
+            options={suppliers}
             onChange={(event, value) => {
               setNewSubscriptionData({
                 ...newSubscriptionData,
-                fournisseur: value,
+                fournisseur: value.value,
               });
               setIsAutocompleteSelected(true);
             }}
@@ -448,6 +468,9 @@ const Services = () => {
             margin="dense"
             label="Expiry Date"
             type="date"
+            inputProps={{
+              min: minDate,
+            }}
             fullWidth
             InputLabelProps={{
               shrink: true,
@@ -494,7 +517,7 @@ const Services = () => {
         <DialogContent>
           <TextField
             label="New Expiry Date"
-            type="date"
+            type="number"
             value={expiryDate}
             onChange={(e) => setExpiryDate(e.target.value)}
             fullWidth
