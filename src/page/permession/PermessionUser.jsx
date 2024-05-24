@@ -180,6 +180,7 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
                 </Typography>
                 <Autocomplete
                   multiple
+                  disabled={supplierID.length === 0}
                   id="serviceID"
                   options={services}
                   value={serviceID}
@@ -507,14 +508,15 @@ const PermissionUser = () => {
       try {
         const [userRes, clientRes, supplierRes] = await Promise.all([
           userRequest.get("/user/allUsers"),
-          userRequest.get("/client/allClients"),
+          userRequest.get("/client/getallclient"),
           userRequest.get("/fournisseur"),
         ]);
-
+        console.log(userRes.data);
         setUsers(
-          [{ label: "Select All", value: "all" }].concat(
-            userRes.data.map((user) => ({ label: user.nom, value: user._id }))
-          )
+         userRes.data.map((user) => ({
+            label: user.nom,
+            value: user._id,
+          }))
         );
 
         setClients(

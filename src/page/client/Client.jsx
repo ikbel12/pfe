@@ -332,28 +332,7 @@ const Client = () => {
               })
             }
           />
-          <Autocomplete
-            multiple
-            freeSolo
-            value={selectedService}
-            getOptionLabel={(option) => option.label}
-            isOptionEqualToValue={(option, value) =>
-              option.value === value.value
-            }
-            options={serviceOptions}
-            onChange={(event, newValue) => {
-              setSelectedService(newValue);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label="Service Name"
-                variant="filled"
-                fullWidth
-                sx={{ mb: 3 }}
-              />
-            )}
-          />
+        
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
