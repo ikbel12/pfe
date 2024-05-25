@@ -115,6 +115,9 @@ const SettingAlert = () => {
       <Box sx={{ padding: 0.5 }}></Box>
       <Card variant="outlined" sx={{ mt: 3 }}>
         <CardContent>
+          <Typography variant="h6" gutterBottom color={"#DAB30A"}>
+            Customize Your Global Alert :
+          </Typography>
           <Typography variant="body1" gutterBottom>
             Choose your date to receive an alert to remind you about the
             expiration of all your services.
@@ -137,7 +140,13 @@ const SettingAlert = () => {
               Customize for All
             </Button>
           </Box>
-          <Divider sx={{ mt: 2, mb: 2 }} />
+        </CardContent>
+      </Card>
+      <Card variant="outlined" sx={{ mt: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom color={"#DAB30A"}>
+            Customize Your Alert For a Specific Service:
+          </Typography>
           <Typography variant="body1" gutterBottom>
             To customize your Alert to remind you about the date of expiration
             for one service, enter your data here:

@@ -103,6 +103,11 @@ const ReclamationForm = () => {
     }
   };
 
+  const handleConfirmReclamation = () => {
+    // Logic for confirming reclamation when showOVHFields is false
+    console.log("Confirming reclamation without OVHcloud fields");
+  };
+
   const handleDeleteClick = (id) => {
     setDeleteReclamationId(id);
     setOpenConfirmDialog(true);
@@ -366,22 +371,28 @@ const ReclamationForm = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenDialog(false)} color="primary">
-            Cancel
-          </Button>
-          <Button
-            onClick={
-              showOVHFields
-                ? handleAddReclamation
-                : () => {
-                    // handle confirm reclamation
-                  }
-            }
-            color="primary"
-            disabled={!isFormValid()}
-          >
-            {showOVHFields ? "Add" : "Confirm Reclamation"}
-          </Button>
+          {showOVHFields ? (
+            <>
+              <Button onClick={() => setOpenDialog(false)} color="primary">
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddReclamation}
+                color="primary"
+                disabled={!isFormValid()}
+              >
+                Add Reclamation
+              </Button>
+            </>
+          ) : (
+            <Button
+              onClick={handleConfirmReclamation}
+              color="primary"
+              disabled={!isFormValid()}
+            >
+              Confirm Reclamation
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
       <Dialog open={openConfirmDialog} onClose={handleCancelDelete}>

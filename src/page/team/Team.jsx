@@ -12,6 +12,7 @@ import {
   Typography,
   IconButton,
   Box,
+  Tooltip,
 } from "@mui/material";
 import {
   AdminPanelSettingsOutlined,
@@ -142,6 +143,7 @@ const Team = () => {
               gap: 1,
             }}
           >
+             <Tooltip title="Delete">
             <IconButton
               color="error"
               size="small"
@@ -149,6 +151,8 @@ const Team = () => {
             >
               <DeleteOutline />
             </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
             <IconButton
               color="primary"
               size="small"
@@ -156,6 +160,8 @@ const Team = () => {
             >
               <EditOutlined />
             </IconButton>
+            </Tooltip>
+            <Tooltip title="Modify Role">
             <IconButton
               size="small"
               onClick={() => handleModifyRoleClick(row._id)}
@@ -163,6 +169,7 @@ const Team = () => {
             >
               <UpdateOutlined />
             </IconButton>
+            </Tooltip>
           </Box>
         ),
       },
