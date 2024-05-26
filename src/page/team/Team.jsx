@@ -122,7 +122,7 @@ const Team = () => {
             >
               {icon}
               <Typography sx={{ fontSize: "13px", color: "#fff" }}>
-                {row.isAdmin ? "Admin" : "User"}
+                {row.isAdmin && row.isSuperAdmin ? "Super Admin" : row.isAdmin ? "Admin" : "User"}
               </Typography>
             </Box>
           );
@@ -137,10 +137,11 @@ const Team = () => {
         renderCell: ({ row }) => (
           <Box
             sx={{
-              display: "flex",
+              display: `${row.isSuperAdmin ? "none" : "flex"}`,
               justifyContent: "center",
               alignItems: "center",
               gap: 1,
+              
             }}
           >
              <Tooltip title="Delete">

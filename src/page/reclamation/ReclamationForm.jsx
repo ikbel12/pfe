@@ -90,20 +90,13 @@ const ReclamationForm = () => {
   useEffect(() => {
     fetchSuppliers();
   }, []);
-
+  console.log("hello",newReclamationData.supplierName)
   // Fetch services when supplier changes
   useEffect(() => {
-    if (newReclamationData.supplierName.length > 0) {
+    if (newReclamationData.supplierName) {
       const fetchServices = async () => {
         try {
-          const supplierIds = newReclamationData.supplierName.map(
-            (supplier) => supplier.value
-          );
-          console.log("Fetching services for suppliers: ", supplierIds);
-          const response = await userRequest.get("/service/", {
-            params: { suppliers: supplierIds },
-          });
-          console.log("Fetched services: ", response.data);
+          const response = await userRequest.get(`/fournisseur/${newReclamationData.supplierName}/services`);
           setServices(
             response.data.map((service) => ({
               value: service._id,
@@ -123,10 +116,15 @@ const ReclamationForm = () => {
   const handleAddReclamation = async () => {
     try {
       await userRequest.post("/reclamation/create", {
-        ...newReclamationData,
-        supplierName: newReclamationData.supplierName
-          .map((supplier) => supplier.label)
-          .join(", "),
+        fournisseurId: newReclamationData.supplierName,
+        category: newReclamationData.category || "billing",
+        impact: "High",
+        product: newReclamationData.product || "adsl",
+        serviceName: newReclamationData.serviceName,
+        subcategory: newReclamationData.subcategory,
+        subject: newReclamationData.subject,
+        type: newReclamationData.type || "criticalIntervention",
+        urgency: newReclamationData.urgency,
       });
       toast.success("Reclamation created successfully", {
         duration: 4000,
@@ -153,7 +151,7 @@ const ReclamationForm = () => {
   const handleConfirmDelete = async () => {
     try {
       await userRequest.delete(
-        `/reclamation/delete-reclamation/${deleteReclamationId}`
+        `/reclamation/${deleteReclamationId}`
       );
       toast.success("Reclamation deleted successfully", {
         duration: 4000,
@@ -213,7 +211,7 @@ const ReclamationForm = () => {
       watchers,
     } = newReclamationData;
     return (
-      supplierName.length > 0 &&
+      supplierName &&
       serviceName &&
       subject &&
       body &&
@@ -225,7 +223,6 @@ const ReclamationForm = () => {
       watchers
     );
   };
-
   const columns = [
     { field: "id", headerName: "Reclamation ID", width: 180, flex: 0.5 },
     { field: "subject", headerName: "Subject", width: 180, flex: 0.35 },
@@ -316,9 +313,14 @@ const ReclamationForm = () => {
         <DialogTitle>Add New Reclamation</DialogTitle>
         <DialogContent>
           <Autocomplete
-            multiple
             options={suppliers}
-            onChange={handleSupplierChange}
+            onChange={(event, value) => {
+              setNewReclamationData((prevData) => ({
+                ...prevData,
+                supplierName: value.value,
+              }));
+            }
+            }
             getOptionLabel={(option) => option.label}
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -332,7 +334,13 @@ const ReclamationForm = () => {
           />
           <Autocomplete
             options={services}
-            onChange={handleServiceChange}
+            onChange={(event, value) => {
+              setNewReclamationData((prevData) => ({
+                ...prevData,
+                serviceName: value ? value.label : "",
+              }));
+            }
+            }
             getOptionLabel={(option) => option.label}
             renderOption={(props, option) => <li {...props}>{option.label}</li>}
             renderInput={(params) => (
@@ -365,7 +373,7 @@ const ReclamationForm = () => {
           <Button
             onClick={handleAddReclamation}
             color="primary"
-            disabled={!isFormValid()}
+            // disabled={!isFormValid()}
           >
             Add Reclamation
           </Button>
@@ -374,10 +382,15 @@ const ReclamationForm = () => {
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Create Reclamation</DialogTitle>
         <DialogContent>
-          <Autocomplete
-            multiple
+        <Autocomplete
             options={suppliers}
-            onChange={handleSupplierChange}
+            onChange={(event, value) => {
+              setNewReclamationData((prevData) => ({
+                ...prevData,
+                supplierName: value.value,
+              }));
+            }
+            }
             getOptionLabel={(option) => option.label}
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -391,7 +404,13 @@ const ReclamationForm = () => {
           />
           <Autocomplete
             options={services}
-            onChange={handleServiceChange}
+            onChange={(event, value) => {
+              setNewReclamationData((prevData) => ({
+                ...prevData,
+                serviceName: value ? value.label : "",
+              }));
+            }
+            }
             getOptionLabel={(option) => option.label}
             renderOption={(props, option) => <li {...props}>{option.label}</li>}
             renderInput={(params) => (
@@ -483,7 +502,7 @@ const ReclamationForm = () => {
           <Button
             onClick={handleAddReclamation}
             color="primary"
-            disabled={!isFormValid()}
+            // disabled={!isFormValid()}
           >
             Add Reclamation
           </Button>
