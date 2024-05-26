@@ -18,10 +18,20 @@ import {
 import Header from "../../components/Header";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import { userRequest } from "../../requestMethod";
 
 const Facture = () => {
   const theme = useTheme();
-  const [bills, setBills] = useState([]);
+  const [bills, setBills] = useState([{
+    billId: "",
+    orderId: "",
+    orderName: "",
+    fournisseur: "",
+    date: "",
+    pdfUrl: "",
+    priceWithoutTax: "",
+    priceWithTax: "",
+  }]);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
   const [billToDelete, setBillToDelete] = useState(null);
 
@@ -129,8 +139,9 @@ const Facture = () => {
   };
 
   const handleDeleteBill = async () => {
+    console.log(billToDelete);
     try {
-      await axios.delete(`http://localhost:3000/api/bill/${billToDelete}`);
+      await userRequest.delete(`/facture/${billToDelete}`);
       setBills((prevBills) =>
         prevBills.filter((bill) => bill.billId !== billToDelete)
       );
@@ -143,10 +154,20 @@ const Facture = () => {
 
   const fetchBills = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/api/bill/allBills"
+      const response = await userRequest.get("/facture/");
+      console.log(response.data);
+      setBills(
+        response.data.map((bill) => ({
+          billId: bill._id,
+          orderId: bill.orderId,
+          orderName: bill.orderId,
+          fournisseur: bill.fournisseur,
+          date: new Date(bill.date),
+          pdfUrl: bill.pdfUrl,
+          priceWithoutTax: bill.priceWithoutTax,
+          priceWithTax: bill.priceWithTax,
+        }))
       );
-      setBills(response.data);
     } catch (error) {
       console.error("Error fetching bills:", error);
     }

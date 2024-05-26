@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Alert, AlertTitle, Link, useTheme, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import Header from "../../components/Header";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import { userRequest } from "../../requestMethod";
 
 const initialAlertsData = [
   {
@@ -13,7 +14,7 @@ const initialAlertsData = [
 ];
 
 const SeeAlerts = () => {
-  const [alertsData, setAlertsData] = useState(initialAlertsData);
+  const [alertsData, setAlertsData] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [alertToDelete, setAlertToDelete] = useState(null);
   const theme = useTheme();
@@ -27,9 +28,28 @@ const SeeAlerts = () => {
         return "";
     }
   };
-
-  const handleRemoveAlert = (index) => {
-    setAlertsData((prevAlerts) => prevAlerts.filter((_, i) => i !== index));
+  useEffect(() => {
+    const handleFetchAllAlerts = async () => {
+      try {
+        const response = await userRequest.get("/alerte/user");
+        setAlertsData(response.data.alertes);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    handleFetchAllAlerts();
+  },[])
+  const handleRemoveAlert = async(index) => {
+    try {
+      await userRequest.delete(`/alerte/${alertsData[index]._id}`);
+      toast.success("Alert deleted successfully");
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to delete alert");
+    }
     setDialogOpen(false);
   };
 
@@ -55,7 +75,7 @@ const SeeAlerts = () => {
             p: 2,
             borderRadius: 1,
             color: "white",
-            bgcolor: getBgColor(alert.severity),
+            bgcolor: getBgColor("warning"),
             position: "relative",
           }}
         >

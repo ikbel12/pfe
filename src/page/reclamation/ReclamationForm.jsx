@@ -28,6 +28,7 @@ const ReclamationForm = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteReclamationId, setDeleteReclamationId] = useState(null);
+  const [supplierID, setSupplierID] = useState("");
   const [newReclamationData, setNewReclamationData] = useState({
     supplierName: [],
     serviceName: "",
@@ -71,8 +72,13 @@ const ReclamationForm = () => {
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
-        const response = await userRequest.get("/suppliers/getall");
-        setSuppliers(response.data);
+        const response = await userRequest.get("/fournisseur/");
+        setSuppliers(response.data.map((supplier) => {
+          return {
+            value: supplier._id,
+            label: supplier.nom,
+          };
+        }));
       } catch (error) {
         console.log(error);
       }
@@ -227,7 +233,6 @@ const ReclamationForm = () => {
       ),
     },
   ];
-
   return (
     <Box>
       <Toaster />
@@ -263,16 +268,12 @@ const ReclamationForm = () => {
         <DialogTitle>Add New Reclamation</DialogTitle>
         <DialogContent>
           <Autocomplete
-            multiple
-            options={[{ name: "Select All" }, ...suppliers]}
-            getOptionLabel={(option) => option.name}
-            disableCloseOnSelect
-            value={newReclamationData.supplierName}
-            onChange={handleSupplierChange}
+            options={suppliers}
+            onChange={(event, value) => setSupplierID(value.value)}
             renderOption={(props, option, { selected }) => (
               <li {...props}>
                 <Checkbox style={{ marginRight: 8 }} checked={selected} />
-                {option.name}
+                {option.label}
               </li>
             )}
             renderInput={(params) => (

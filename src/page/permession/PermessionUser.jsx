@@ -24,7 +24,7 @@ import { userRequest } from "../../requestMethod";
 // Composant pour la gestion des permissions des utilisateurs
 const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
   const [userID, setUserID] = useState([]);
-  const [supplierID, setSupplierID] = useState([]);
+  const [supplierID, setSupplierID] = useState("");
   const [services, setServices] = useState([]);
   const [serviceID, setServiceID] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -139,22 +139,13 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
                   Enter the supplier name:
                 </Typography>
                 <Autocomplete
-                  multiple
                   id="supplierID"
                   options={suppliers}
-                  value={supplierID}
-                  disableCloseOnSelect
-                  getOptionLabel={(option) => option.label}
-                  isOptionEqualToValue={(option, value) =>
-                    option.value === value.value
-                  }
-                  onChange={handleSelectAll(
-                    "suppliers",
-                    suppliers,
-                    setSupplierID,
-                    (supplierIds) =>
-                      fetchServicesBySuppliers(supplierIds, setServices)
-                  )}
+                 
+                  onChange={(event, newValue) => {
+                    setSupplierID(newValue);
+                    fetchServicesBySuppliers([newValue.value], setServices);
+                  }}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
                       <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -265,7 +256,7 @@ const ClientPermissionCard = ({
   fetchServicesBySuppliers,
 }) => {
   const [clientID, setClientID] = useState([]);
-  const [supplierID2, setSupplierID2] = useState([]);
+  const [supplierID2, setSupplierID2] = useState("");
   const [services2, setServices2] = useState([]);
   const [serviceID2, setServiceID2] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -380,22 +371,14 @@ const ClientPermissionCard = ({
                   Enter the supplier name:
                 </Typography>
                 <Autocomplete
-                  multiple
-                  id="supplierID2" // Unique ID for second card
+                  
                   options={suppliers}
-                  value={supplierID2}
-                  disableCloseOnSelect
-                  getOptionLabel={(option) => option.label}
-                  isOptionEqualToValue={(option, value) =>
-                    option.value === value.value
+                  
+                  onChange={(event, newValue) => {
+                    setSupplierID2(newValue);
+                    fetchServicesBySuppliers([newValue.value], setServices2);
                   }
-                  onChange={handleSelectAll(
-                    "suppliers",
-                    suppliers,
-                    setSupplierID2,
-                    (supplierIds) =>
-                      fetchServicesBySuppliers(supplierIds, setServices2)
-                  )}
+                  }
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
                       <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -546,11 +529,8 @@ const PermissionUser = () => {
 
   const fetchServicesBySuppliers = async (supplierIds, setServicesState) => {
     try {
-      const response = await userRequest.post(
-        "/service/getServicesBySuppliers",
-        {
-          supplierIds,
-        }
+      const response = await userRequest.get(
+        `/fournisseur/${supplierIds}/services`,
       );
       setServicesState(
         [{ label: "Select All", value: "all" }].concat(

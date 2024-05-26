@@ -51,7 +51,7 @@ const Services = () => {
   });
   const [expiryDate, setExpiryDate] = useState("");
   const [isAutocompleteSelected, setIsAutocompleteSelected] = useState(false);
-
+  console.log(subscriptions)
   // Get the current date
   const today = new Date(newSubscriptionData.date_debut);
   today.setDate(today.getDate() + 1);
@@ -65,7 +65,7 @@ const Services = () => {
           response.data.map((subscription) => ({
             id: subscription._id,
             nom: subscription.nom,
-            fournisseur: subscription.fournisseur.nom,
+            fournisseur: subscription?.fournisseur?.nom,
             date_debut: subscription.date_debut,
             date_fin: subscription.date_fin,
             statut: subscription.statut,
