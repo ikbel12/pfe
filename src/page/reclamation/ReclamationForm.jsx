@@ -10,14 +10,15 @@ import {
   TextField,
   Tooltip,
   Typography,
-  Checkbox,
   Autocomplete,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
+  Checkbox,
 } from "@mui/material";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
+import Sync from "@mui/icons-material/Sync"; // Import the Sync icon
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
@@ -26,9 +27,9 @@ import Header from "../../components/Header";
 const ReclamationForm = () => {
   const [reclamations, setReclamations] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openAddDialog, setOpenAddDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteReclamationId, setDeleteReclamationId] = useState(null);
-  const [supplierID, setSupplierID] = useState("");
   const [newReclamationData, setNewReclamationData] = useState({
     supplierName: [],
     serviceName: "",
@@ -42,56 +43,89 @@ const ReclamationForm = () => {
     watchers: "",
   });
   const [suppliers, setSuppliers] = useState([]);
-  const [showOVHFields, setShowOVHFields] = useState(false);
+  const [services, setServices] = useState([]);
+
+  // Fetch all reclamations
+  const fetchReclamations = async () => {
+    try {
+      const response = await userRequest.get("/reclamation/getall");
+      setReclamations(
+        response.data.map((reclamation) => ({
+          id: reclamation._id,
+          subject: reclamation.subject,
+          body: reclamation.body,
+          category: reclamation.category,
+          product: reclamation.product,
+          serviceName: reclamation.serviceName,
+          subcategory: reclamation.subcategory,
+          type: reclamation.type,
+          urgency: reclamation.urgency,
+          watchers: reclamation.watchers,
+        }))
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    const fetchReclamations = async () => {
-      try {
-        const response = await userRequest.get("/reclamation/getall");
-        setReclamations(
-          response.data.map((reclamation) => ({
-            id: reclamation._id,
-            subject: reclamation.subject,
-            body: reclamation.body,
-            category: reclamation.category,
-            product: reclamation.product,
-            serviceName: reclamation.serviceName,
-            subcategory: reclamation.subcategory,
-            type: reclamation.type,
-            urgency: reclamation.urgency,
-            watchers: reclamation.watchers,
-          }))
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
     fetchReclamations();
   }, []);
 
+  // Fetch all suppliers
+  const fetchSuppliers = async () => {
+    try {
+      const response = await userRequest.get("/fournisseur/");
+      setSuppliers(
+        response.data.map((supplier) => ({
+          value: supplier._id,
+          label: supplier.nom,
+        }))
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    const fetchSuppliers = async () => {
-      try {
-        const response = await userRequest.get("/fournisseur/");
-        setSuppliers(response.data.map((supplier) => {
-          return {
-            value: supplier._id,
-            label: supplier.nom,
-          };
-        }));
-      } catch (error) {
-        console.log(error);
-      }
-    };
     fetchSuppliers();
   }, []);
 
+  // Fetch services when supplier changes
+  useEffect(() => {
+    if (newReclamationData.supplierName.length > 0) {
+      const fetchServices = async () => {
+        try {
+          const supplierIds = newReclamationData.supplierName.map(
+            (supplier) => supplier.value
+          );
+          console.log("Fetching services for suppliers: ", supplierIds);
+          const response = await userRequest.get("/service/", {
+            params: { suppliers: supplierIds },
+          });
+          console.log("Fetched services: ", response.data);
+          setServices(
+            response.data.map((service) => ({
+              value: service._id,
+              label: service.nom,
+            }))
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      fetchServices();
+    } else {
+      setServices([]);
+    }
+  }, [newReclamationData.supplierName]);
+
   const handleAddReclamation = async () => {
     try {
-      const response = await userRequest.post("/reclamation/create", {
+      await userRequest.post("/reclamation/create", {
         ...newReclamationData,
         supplierName: newReclamationData.supplierName
-          .map((supplier) => supplier.name)
+          .map((supplier) => supplier.label)
           .join(", "),
       });
       toast.success("Reclamation created successfully", {
@@ -99,6 +133,8 @@ const ReclamationForm = () => {
         position: "top-center",
         style: { background: "green", color: "white" },
       });
+      setOpenAddDialog(false);
+      setOpenDialog(false);
       window.location.reload();
     } catch (error) {
       toast.error("Failed to add reclamation", {
@@ -107,11 +143,6 @@ const ReclamationForm = () => {
         style: { background: "red", color: "white" },
       });
     }
-  };
-
-  const handleConfirmReclamation = () => {
-    // Logic for confirming reclamation when showOVHFields is false
-    console.log("Confirming reclamation without OVHcloud fields");
   };
 
   const handleDeleteClick = (id) => {
@@ -129,6 +160,7 @@ const ReclamationForm = () => {
         position: "top-center",
         style: { background: "green", color: "white" },
       });
+      setOpenConfirmDialog(false);
       window.location.reload();
     } catch (error) {
       console.log(error);
@@ -154,46 +186,44 @@ const ReclamationForm = () => {
   };
 
   const handleSupplierChange = (event, value) => {
-    if (value.length > 0 && value[value.length - 1].name === "Select All") {
-      const allSelected =
-        newReclamationData.supplierName.length === suppliers.length;
-      setNewReclamationData((prevData) => ({
-        ...prevData,
-        supplierName: allSelected ? [] : suppliers,
-      }));
-      setShowOVHFields(
-        !allSelected &&
-          suppliers.some((supplier) => supplier.name.includes("OVHcloud"))
-      );
-    } else {
-      setNewReclamationData((prevData) => ({
-        ...prevData,
-        supplierName: value.filter(
-          (supplier) => supplier.name !== "Select All"
-        ),
-      }));
-    }
+    setNewReclamationData((prevData) => ({
+      ...prevData,
+      supplierName: value,
+    }));
   };
 
-  useEffect(() => {
-    setShowOVHFields(
-      newReclamationData.supplierName.some((supplier) =>
-        supplier.name.includes("OVHcloud")
-      )
-    );
-  }, [newReclamationData.supplierName]);
+  const handleServiceChange = (event, value) => {
+    setNewReclamationData((prevData) => ({
+      ...prevData,
+      serviceName: value ? value.label : "",
+    }));
+  };
 
   const isFormValid = () => {
-    const { supplierName, serviceName, subject, body } = newReclamationData;
-    if (!supplierName.length || !serviceName || !subject || !body) {
-      return false;
-    }
-    if (showOVHFields) {
-      const { category, product, subcategory, type, urgency, watchers } =
-        newReclamationData;
-      return category && product && subcategory && type && urgency && watchers;
-    }
-    return true;
+    const {
+      supplierName,
+      serviceName,
+      subject,
+      body,
+      category,
+      product,
+      subcategory,
+      type,
+      urgency,
+      watchers,
+    } = newReclamationData;
+    return (
+      supplierName.length > 0 &&
+      serviceName &&
+      subject &&
+      body &&
+      category &&
+      product &&
+      subcategory &&
+      type &&
+      urgency &&
+      watchers
+    );
   };
 
   const columns = [
@@ -233,6 +263,7 @@ const ReclamationForm = () => {
       ),
     },
   ];
+
   return (
     <Box>
       <Toaster />
@@ -246,12 +277,29 @@ const ReclamationForm = () => {
           px: 2,
         }}
       >
+        <Tooltip title="Synchronize">
+          <IconButton
+            color="primary"
+            onClick={fetchReclamations} // Call fetchReclamations to synchronize data
+          >
+            <Sync />
+          </IconButton>
+        </Tooltip>
         <Button
           variant="contained"
           color="primary"
           onClick={() => setOpenDialog(true)}
+          sx={{ ml: 2 }} // Added margin-left for spacing
         >
-          Create Reclamation
+          Create OVH Reclamation
+        </Button>
+        <Button
+          variant="contained"
+          color="primary" // Changed from "secondary" to "primary"
+          onClick={() => setOpenAddDialog(true)}
+          sx={{ ml: 2 }}
+        >
+          Add Reclamation
         </Button>
       </Box>
       <Box sx={{ height: 650, width: "99%", mx: "auto" }}>
@@ -264,12 +312,14 @@ const ReclamationForm = () => {
           columns={columns}
         />
       </Box>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)}>
         <DialogTitle>Add New Reclamation</DialogTitle>
         <DialogContent>
           <Autocomplete
+            multiple
             options={suppliers}
-            onChange={(event, value) => setSupplierID(value.value)}
+            onChange={handleSupplierChange}
+            getOptionLabel={(option) => option.label}
             renderOption={(props, option, { selected }) => (
               <li {...props}>
                 <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -280,14 +330,14 @@ const ReclamationForm = () => {
               <TextField {...params} variant="outlined" label="Supplier Name" />
             )}
           />
-          <TextField
-            margin="dense"
-            label="Service Name"
-            name="serviceName"
-            fullWidth
-            value={newReclamationData.serviceName}
-            onChange={handleChange}
-            required
+          <Autocomplete
+            options={services}
+            onChange={handleServiceChange}
+            getOptionLabel={(option) => option.label}
+            renderOption={(props, option) => <li {...props}>{option.label}</li>}
+            renderInput={(params) => (
+              <TextField {...params} variant="outlined" label="Service Name" />
+            )}
           />
           <TextField
             margin="dense"
@@ -307,93 +357,136 @@ const ReclamationForm = () => {
             onChange={handleChange}
             required
           />
-          {showOVHFields && (
-            <>
-              <TextField
-                margin="dense"
-                label="Category"
-                name="category"
-                fullWidth
-                value={newReclamationData.category}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                margin="dense"
-                label="Product"
-                name="product"
-                fullWidth
-                value={newReclamationData.product}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                margin="dense"
-                label="Subcategory"
-                name="subcategory"
-                fullWidth
-                value={newReclamationData.subcategory}
-                onChange={handleChange}
-                required
-              />
-              <FormControl fullWidth margin="dense" required>
-                <InputLabel id="type-label">Type</InputLabel>
-                <Select
-                  labelId="type-label"
-                  id="type"
-                  name="type"
-                  value={newReclamationData.type}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="Type 1">Type 1</MenuItem>
-                  <MenuItem value="Type 2">Type 2</MenuItem>
-                  <MenuItem value="Type 3">Type 3</MenuItem>
-                </Select>
-              </FormControl>
-              <TextField
-                margin="dense"
-                label="Urgency"
-                name="urgency"
-                fullWidth
-                value={newReclamationData.urgency}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                margin="dense"
-                label="Watchers"
-                name="watchers"
-                fullWidth
-                value={newReclamationData.watchers}
-                onChange={handleChange}
-                required
-              />
-            </>
-          )}
         </DialogContent>
         <DialogActions>
-          {showOVHFields ? (
-            <>
-              <Button onClick={() => setOpenDialog(false)} color="primary">
-                Cancel
-              </Button>
-              <Button
-                onClick={handleAddReclamation}
-                color="primary"
-                disabled={!isFormValid()}
-              >
-                Add Reclamation
-              </Button>
-            </>
-          ) : (
-            <Button
-              onClick={handleConfirmReclamation}
-              color="primary"
-              disabled={!isFormValid()}
+          <Button onClick={() => setOpenAddDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddReclamation}
+            color="primary"
+            disabled={!isFormValid()}
+          >
+            Add Reclamation
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>Create Reclamation</DialogTitle>
+        <DialogContent>
+          <Autocomplete
+            multiple
+            options={suppliers}
+            onChange={handleSupplierChange}
+            getOptionLabel={(option) => option.label}
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox style={{ marginRight: 8 }} checked={selected} />
+                {option.label}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} variant="outlined" label="Supplier Name" />
+            )}
+          />
+          <Autocomplete
+            options={services}
+            onChange={handleServiceChange}
+            getOptionLabel={(option) => option.label}
+            renderOption={(props, option) => <li {...props}>{option.label}</li>}
+            renderInput={(params) => (
+              <TextField {...params} variant="outlined" label="Service Name" />
+            )}
+          />
+          <TextField
+            margin="dense"
+            label="Subject"
+            name="subject"
+            fullWidth
+            value={newReclamationData.subject}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            margin="dense"
+            label="Body"
+            name="body"
+            fullWidth
+            value={newReclamationData.body}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            margin="dense"
+            label="Category"
+            name="category"
+            fullWidth
+            value={newReclamationData.category}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            margin="dense"
+            label="Product"
+            name="product"
+            fullWidth
+            value={newReclamationData.product}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            margin="dense"
+            label="Subcategory"
+            name="subcategory"
+            fullWidth
+            value={newReclamationData.subcategory}
+            onChange={handleChange}
+            required
+          />
+          <FormControl fullWidth margin="dense" required>
+            <InputLabel id="type-label">Type</InputLabel>
+            <Select
+              labelId="type-label"
+              id="type"
+              name="type"
+              value={newReclamationData.type}
+              onChange={handleChange}
             >
-              Confirm Reclamation
-            </Button>
-          )}
+              <MenuItem value="Type 1">Type 1</MenuItem>
+              <MenuItem value="Type 2">Type 2</MenuItem>
+              <MenuItem value="Type 3">Type 3</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
+            margin="dense"
+            label="Urgency"
+            name="urgency"
+            fullWidth
+            value={newReclamationData.urgency}
+            onChange={handleChange}
+            required
+          />
+          <TextField
+            margin="dense"
+            label="Watchers"
+            name="watchers"
+            fullWidth
+            value={newReclamationData.watchers}
+            onChange={handleChange}
+            required
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddReclamation}
+            color="primary"
+            disabled={!isFormValid()}
+          >
+            Add Reclamation
+          </Button>
         </DialogActions>
       </Dialog>
       <Dialog open={openConfirmDialog} onClose={handleCancelDelete}>
