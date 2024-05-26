@@ -23,6 +23,7 @@ import ChangePassword from "./page/auth/ChangePassword";
 import PermessionUser from "./page/permession/PermessionUser";
 import Services from "./page/services/Services";
 import SeeAlerts from "./page/seeAlert/SeeAlerts";
+import Facture from "./page/facture/Facture";
 
 function ProtectedRoute({ children }) {
   // @ts-ignore
@@ -79,7 +80,7 @@ const routes = (
           </ProtectedRoute>
         }
       />
-            <Route
+      <Route
         path="seeAlert"
         element={
           <ProtectedRoute>
@@ -116,6 +117,14 @@ const routes = (
         element={
           <ProtectedRoute>
             <ReclamationForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="facture"
+        element={
+          <ProtectedRoute>
+            <Facture />
           </ProtectedRoute>
         }
       />

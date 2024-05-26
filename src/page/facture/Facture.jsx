@@ -1,0 +1,215 @@
+import React, { useMemo, useEffect, useState } from "react";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import {
+  Button,
+  useTheme,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  IconButton,
+  Box,
+  Tooltip,
+} from "@mui/material";
+import {
+  DeleteOutline,
+} from "@mui/icons-material";
+import Header from "../../components/Header";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
+
+const Facture = () => {
+  const theme = useTheme();
+  const [bills, setBills] = useState([]);
+  const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
+  const [billToDelete, setBillToDelete] = useState(null);
+
+  const columns = useMemo(
+    () => [
+      {
+        field: "billId",
+        headerName: "Bill ID",
+        type: "string",
+        width: 100,
+        align: "left",
+        headerAlign: "left",
+        flex: 0.7,
+      },
+      {
+        field: "orderId",
+        headerName: "Order ID",
+        type: "number",
+        flex: 0.25,
+        align: "left",
+        headerAlign: "left",
+      },
+      {
+        field: "orderName",
+        headerName: "Order Name",
+        type: "string",
+        flex: 0.25,
+        align: "left",
+        headerAlign: "left",
+      },
+      {
+        field: "fournisseur",
+        headerName: "Fournisseur",
+        type: "string",
+        flex: 0.25,
+        align: "left",
+        headerAlign: "left",
+      },
+      {
+        field: "date",
+        headerName: "Date",
+        type: "date",
+        flex: 0.4,
+        align: "left",
+        headerAlign: "left",
+      },
+      {
+        field: "pdfUrl",
+        headerName: "PDF URL",
+        type: "string",
+        flex: 0.6,
+        align: "left",
+        headerAlign: "left",
+      },
+      {
+        field: "priceWithoutTax",
+        headerName: "Price Without Tax",
+        type: "number",
+        flex: 0.25,
+        align: "left",
+        headerAlign: "left",
+      },
+      {
+        field: "priceWithTax",
+        headerName: "Price With Tax",
+        type: "number",
+        flex: 0.25,
+        align: "left",
+        headerAlign: "left",
+      },
+      {
+        field: "actions",
+        headerName: "Actions",
+        width: 150,
+        align: "center",
+        headerAlign: "center",
+        renderCell: ({ row }) => (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 1,
+            }}
+          >
+            <Tooltip title="Delete">
+              <IconButton
+                color="error"
+                size="small"
+                onClick={() => handleDeleteBillClick(row.billId)}
+              >
+                <DeleteOutline />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        ),
+      },
+    ],
+    [theme.palette.primary.dark]
+  );
+
+  const handleDeleteBillClick = (id) => {
+    setBillToDelete(id);
+    setConfirmDeleteDialog(true);
+  };
+
+  const handleDeleteBill = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/api/bill/${billToDelete}`);
+      setBills((prevBills) =>
+        prevBills.filter((bill) => bill.billId !== billToDelete)
+      );
+      setConfirmDeleteDialog(false);
+      setBillToDelete(null);
+    } catch (error) {
+      console.error("Error deleting bill:", error);
+    }
+  };
+
+  const fetchBills = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3000/api/bill/allBills"
+      );
+      setBills(response.data);
+    } catch (error) {
+      console.error("Error fetching bills:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBills();
+  }, []);
+
+  return (
+    <Box>
+      <Toaster />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+          px: 2,
+        }}
+      >
+        <Header title={"BILLS"} subTitle={"Managing the Bills"} />
+      </Box>
+     
+      <Box sx={{ height: 600, mx: "auto", overflowY: "auto" }}>
+        <DataGrid
+          slots={{
+            toolbar: GridToolbar,
+          }}
+          rows={bills}
+          // @ts-ignore
+          columns={columns}
+          rowHeight={38}
+          autoHeight
+          getRowId={(row) => row.billId}
+        />
+      </Box>
+      <Dialog
+        open={confirmDeleteDialog}
+        onClose={() => setConfirmDeleteDialog(false)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>Are you sure you want to delete this bill?</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteDialog(false)}>Cancel</Button>
+          <Button
+            sx={{
+              backgroundColor: "#fff",
+              color: "red",
+              "&:hover": {
+                backgroundColor: "#f5f5f5",
+              },
+            }}
+            onClick={handleDeleteBill}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+};
+
+export default Facture;

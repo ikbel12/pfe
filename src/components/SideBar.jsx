@@ -36,6 +36,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/apiCalls";
 import ProfileDialog from "../page/profile/ProfileDialog";
 import AddAlertOutlinedIcon from "@mui/icons-material/AddAlertOutlined";
+import PointOfSaleOutlinedIcon from '@mui/icons-material/PointOfSaleOutlined';
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -117,6 +118,11 @@ const Array1 = [
     text: " See All Alerts",
     icon: <AddAlertOutlinedIcon />,
     path: "seeAlert",
+  },
+  {
+    text: " See All Bills",
+    icon: <PointOfSaleOutlinedIcon />,
+    path: "facture",
   },
 ];
 
