@@ -33,10 +33,10 @@ export default function ResetDialog({openDialog, setOpenDialog}) {
         open={openDialog}
         onClose={handleClose}
       >
-        <DialogTitle>Subscribe</DialogTitle>
+        <DialogTitle>Reset Password</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            To subscribe to this website, please enter your email address here. We
+            To reset your password , please enter your email address here. We
             will send updates occasionally.
           </DialogContentText>
           <TextField
@@ -55,7 +55,7 @@ export default function ResetDialog({openDialog, setOpenDialog}) {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Subscribe</Button>
+          <Button onClick={handleSubmit}>Confirm</Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>
