@@ -51,12 +51,14 @@ const Services = () => {
   });
   const [expiryDate, setExpiryDate] = useState("");
   const [isAutocompleteSelected, setIsAutocompleteSelected] = useState(false);
-  console.log(subscriptions)
+  console.log(subscriptions);
   // Get the current date
   const today = new Date(newSubscriptionData.date_debut);
   today.setDate(today.getDate() + 1);
   // Format the date as YYYY-MM-DD
-  const minDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const minDate = `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
@@ -84,8 +86,7 @@ const Services = () => {
           setSuppliers((prevSuppliers) => [
             { value: supplier._id, label: supplier.nom },
           ]);
-        }
-        );
+        });
       } catch (error) {
         console.log(error);
       }
@@ -208,14 +209,11 @@ const Services = () => {
 
   const handleAddSubscription = async () => {
     try {
-     await userRequest.post(
-        "/service/create",
-        {
-          ...newSubscriptionData,
-          fournisseurId: newSubscriptionData.fournisseur,
-        },
-      );
-      
+      await userRequest.post("/service/create", {
+        ...newSubscriptionData,
+        fournisseurId: newSubscriptionData.fournisseur,
+      });
+
       setOpenDialog(false);
       toast.success("Service added successfully", {
         duration: 4000,
@@ -243,7 +241,7 @@ const Services = () => {
   const handleConfirmDelete = async () => {
     try {
       await userRequest.delete(
-        `/service/deleteservices/${deleteSubscriptionId}`
+        `/service/deleteService/${deleteSubscriptionId}`
       );
       setOpenConfirmDialog(false);
       toast.success("Service deleted successfully", {
@@ -292,7 +290,7 @@ const Services = () => {
     try {
       await userRequest.patch(`/service/renewService`, {
         numberOfMonths: expiryDate,
-        serviceId:updateSubscriptionId,
+        serviceId: updateSubscriptionId,
       });
       setOpenUpdateDialog(false);
       toast.success("Service updated successfully", {

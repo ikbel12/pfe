@@ -36,7 +36,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/apiCalls";
 import ProfileDialog from "../page/profile/ProfileDialog";
 import AddAlertOutlinedIcon from "@mui/icons-material/AddAlertOutlined";
-import PointOfSaleOutlinedIcon from '@mui/icons-material/PointOfSaleOutlined';
+import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -224,7 +224,11 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
           color: theme.palette.info.main,
         }}
       >
-        {user?.isAdmin ? "Admin" : "User"}
+        {user?.isAdmin && user?.isSuperAdmin
+          ? "Super Admin"
+          : user?.isAdmin
+          ? "Admin"
+          : "User"}
       </Typography>
 
       <Divider />

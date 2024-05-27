@@ -21,38 +21,16 @@ import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
 
-// Composant pour la gestion des permissions des utilisateurs
+// Component for managing user permissions
 const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
   const [userID, setUserID] = useState([]);
-  const [supplierID, setSupplierID] = useState("");
+  const [supplierID, setSupplierID] = useState(null);
   const [services, setServices] = useState([]);
   const [serviceID, setServiceID] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleSelectAll = (type, options, setValue, fetchServices) => {
-    return (event, newValue) => {
-      if (newValue.some((option) => option.value === "all")) {
-        setValue(options.filter((option) => option.value !== "all"));
-        if (type === "suppliers") {
-          fetchServices(suppliers.map((supplier) => supplier.value));
-        }
-      } else {
-        setValue(newValue);
-        if (type === "suppliers") {
-          fetchServices(newValue.map((supplier) => supplier.value));
-        }
-      }
-    };
-  };
-
-  const handleSelectAllServices = (options, setValue) => {
-    return (event, newValue) => {
-      if (newValue.some((option) => option.value === "all")) {
-        setValue(options.filter((option) => option.value !== "all"));
-      } else {
-        setValue(newValue);
-      }
-    };
+  const handleSelectServices = (event, newValue) => {
+    setServiceID(newValue);
   };
 
   const handleConfirmClose = async () => {
@@ -109,12 +87,7 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
                   isOptionEqualToValue={(option, value) =>
                     option.value === value.value
                   }
-                  onChange={handleSelectAll(
-                    "users",
-                    users,
-                    setUserID,
-                    () => {}
-                  )}
+                  onChange={(event, newValue) => setUserID(newValue)}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
                       <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -141,10 +114,13 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
                 <Autocomplete
                   id="supplierID"
                   options={suppliers}
-                 
                   onChange={(event, newValue) => {
                     setSupplierID(newValue);
-                    fetchServicesBySuppliers([newValue.value], setServices);
+                    if (newValue) {
+                      fetchServicesBySuppliers([newValue.value], setServices);
+                    } else {
+                      setServices([]);
+                    }
                   }}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
@@ -171,7 +147,7 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
                 </Typography>
                 <Autocomplete
                   multiple
-                  disabled={supplierID.length === 0}
+                  disabled={!supplierID}
                   id="serviceID"
                   options={services}
                   value={serviceID}
@@ -180,7 +156,7 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
                   isOptionEqualToValue={(option, value) =>
                     option.value === value.value
                   }
-                  onChange={handleSelectAllServices(services, setServiceID)}
+                  onChange={handleSelectServices}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
                       <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -194,7 +170,7 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
                       variant="filled"
                       fullWidth
                       required
-                      disabled={supplierID.length === 0}
+                      disabled={!supplierID}
                     />
                   )}
                 />
@@ -210,9 +186,7 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
               variant="contained"
               color="primary"
               disabled={
-                userID.length === 0 ||
-                supplierID.length === 0 ||
-                serviceID.length === 0
+                userID.length === 0 || !supplierID || serviceID.length === 0
               }
             >
               Confirm Permission For User
@@ -249,42 +223,20 @@ const UserPermissionCard = ({ users, suppliers, fetchServicesBySuppliers }) => {
   );
 };
 
-// Composant pour la gestion des permissions des clients
+// Component for managing client permissions
 const ClientPermissionCard = ({
   clients,
   suppliers,
   fetchServicesBySuppliers,
 }) => {
   const [clientID, setClientID] = useState([]);
-  const [supplierID2, setSupplierID2] = useState("");
+  const [supplierID2, setSupplierID2] = useState(null);
   const [services2, setServices2] = useState([]);
   const [serviceID2, setServiceID2] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleSelectAll = (type, options, setValue, fetchServices) => {
-    return (event, newValue) => {
-      if (newValue.some((option) => option.value === "all")) {
-        setValue(options.filter((option) => option.value !== "all"));
-        if (type === "suppliers") {
-          fetchServices(suppliers.map((supplier) => supplier.value));
-        }
-      } else {
-        setValue(newValue);
-        if (type === "suppliers") {
-          fetchServices(newValue.map((supplier) => supplier.value));
-        }
-      }
-    };
-  };
-
-  const handleSelectAllServices = (options, setValue) => {
-    return (event, newValue) => {
-      if (newValue.some((option) => option.value === "all")) {
-        setValue(options.filter((option) => option.value !== "all"));
-      } else {
-        setValue(newValue);
-      }
-    };
+  const handleSelectServices = (event, newValue) => {
+    setServiceID2(newValue);
   };
 
   const handleConfirmClose = async () => {
@@ -341,12 +293,7 @@ const ClientPermissionCard = ({
                   isOptionEqualToValue={(option, value) =>
                     option.value === value.value
                   }
-                  onChange={handleSelectAll(
-                    "clients",
-                    clients,
-                    setClientID,
-                    () => {}
-                  )}
+                  onChange={(event, newValue) => setClientID(newValue)}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
                       <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -371,14 +318,16 @@ const ClientPermissionCard = ({
                   Enter the supplier name:
                 </Typography>
                 <Autocomplete
-                  
+                  id="supplierID2"
                   options={suppliers}
-                  
                   onChange={(event, newValue) => {
                     setSupplierID2(newValue);
-                    fetchServicesBySuppliers([newValue.value], setServices2);
-                  }
-                  }
+                    if (newValue) {
+                      fetchServicesBySuppliers([newValue.value], setServices2);
+                    } else {
+                      setServices2([]);
+                    }
+                  }}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
                       <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -404,15 +353,16 @@ const ClientPermissionCard = ({
                 </Typography>
                 <Autocomplete
                   multiple
-                  id="serviceID2" // Unique ID for second card
-                  options={services2} // Utilisation du deuxième état pour les services
+                  disabled={!supplierID2}
+                  id="serviceID2"
+                  options={services2}
                   value={serviceID2}
                   disableCloseOnSelect
                   getOptionLabel={(option) => option.label}
                   isOptionEqualToValue={(option, value) =>
                     option.value === value.value
                   }
-                  onChange={handleSelectAllServices(services2, setServiceID2)}
+                  onChange={handleSelectServices}
                   renderOption={(props, option, { selected }) => (
                     <li {...props}>
                       <Checkbox style={{ marginRight: 8 }} checked={selected} />
@@ -426,7 +376,7 @@ const ClientPermissionCard = ({
                       variant="filled"
                       fullWidth
                       required
-                      disabled={supplierID2.length === 0}
+                      disabled={!supplierID2}
                     />
                   )}
                 />
@@ -442,9 +392,7 @@ const ClientPermissionCard = ({
               variant="contained"
               color="primary"
               disabled={
-                clientID.length === 0 ||
-                supplierID2.length === 0 ||
-                serviceID2.length === 0
+                clientID.length === 0 || !supplierID2 || serviceID2.length === 0
               }
             >
               Confirm Permission For Client
@@ -496,28 +444,24 @@ const PermissionUser = () => {
         ]);
         console.log(userRes.data);
         setUsers(
-         userRes.data.map((user) => ({
+          userRes.data.map((user) => ({
             label: user.nom,
             value: user._id,
           }))
         );
 
         setClients(
-          [{ label: "Select All", value: "all" }].concat(
-            clientRes.data.map((client) => ({
-              label: client.nom,
-              value: client._id,
-            }))
-          )
+          clientRes.data.map((client) => ({
+            label: client.nom,
+            value: client._id,
+          }))
         );
 
         setSuppliers(
-          [{ label: "Select All", value: "all" }].concat(
-            supplierRes.data.map((supplier) => ({
-              label: supplier.nom,
-              value: supplier._id,
-            }))
-          )
+          supplierRes.data.map((supplier) => ({
+            label: supplier.nom,
+            value: supplier._id,
+          }))
         );
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -530,15 +474,13 @@ const PermissionUser = () => {
   const fetchServicesBySuppliers = async (supplierIds, setServicesState) => {
     try {
       const response = await userRequest.get(
-        `/fournisseur/${supplierIds}/services`,
+        `/fournisseur/${supplierIds}/services`
       );
       setServicesState(
-        [{ label: "Select All", value: "all" }].concat(
-          response.data.map((service) => ({
-            label: service.nom,
-            value: service._id,
-          }))
-        )
+        response.data.map((service) => ({
+          label: service.nom,
+          value: service._id,
+        }))
       );
     } catch (error) {
       console.error("Error fetching services:", error);

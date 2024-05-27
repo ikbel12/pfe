@@ -1,8 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Box, Alert, AlertTitle, Link, useTheme, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
+import {
+  Box,
+  Alert,
+  AlertTitle,
+  Link,
+  useTheme,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
-import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import ClearOutlinedIcon from "@mui/icons-material/ClearOutlined";
 import { userRequest } from "../../requestMethod";
 
 const initialAlertsData = [
@@ -38,8 +50,8 @@ const SeeAlerts = () => {
       }
     };
     handleFetchAllAlerts();
-  },[])
-  const handleRemoveAlert = async(index) => {
+  }, []);
+  const handleRemoveAlert = async (index) => {
     try {
       await userRequest.delete(`/alerte/${alertsData[index]._id}`);
       toast.success("Alert deleted successfully");
@@ -66,7 +78,7 @@ const SeeAlerts = () => {
   return (
     <Box>
       <Toaster />
-      <Header title="Services" subTitle="List of services" />
+      <Header title="Alerts" subTitle="List of your all Alerts" />
       {alertsData.map((alert, index) => (
         <Box
           key={index}
@@ -94,18 +106,15 @@ const SeeAlerts = () => {
         </Box>
       ))}
 
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-      >
+      <Dialog open={dialogOpen} onClose={handleCloseDialog}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
           Are you sure you want to delete this alert?
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button 
-            onClick={() => handleRemoveAlert(alertToDelete)} 
+          <Button
+            onClick={() => handleRemoveAlert(alertToDelete)}
             color="primary"
           >
             Delete
