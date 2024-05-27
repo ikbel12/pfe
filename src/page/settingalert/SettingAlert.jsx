@@ -56,7 +56,7 @@ const SettingAlert = () => {
     setConfirm(true);
     setOpen(false);
     try {
-      const response = await userRequest.post(`/settings/${user._id}`, {
+      const response = await userRequest.put(`/settings/${user._id}`, {
         globalNotificationDays: globalDays,
         customNotifications: [],
       });
@@ -64,6 +64,9 @@ const SettingAlert = () => {
         duration: 4000,
         position: "top-right",
       });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.log(error);
       toast.error("Error setting alert", {
@@ -84,7 +87,7 @@ const SettingAlert = () => {
   const handleSubmit = async () => {
     handleConfirmClose();
     try {
-      const response = await userRequest.post(`/settings/${user._id}`, {
+      const response = await userRequest.put(`/settings/${user._id}`, {
         customNotifications: [
           {
             serviceId: selectedService,
@@ -96,6 +99,9 @@ const SettingAlert = () => {
         duration: 4000,
         position: "top-right",
       });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error("Error setting alert:", error);
       toast.error("Error setting alert", {

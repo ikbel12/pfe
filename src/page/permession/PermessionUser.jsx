@@ -445,7 +445,7 @@ const PermissionUser = () => {
         console.log(userRes.data);
         setUsers(
           userRes.data.map((user) => ({
-            label: user.nom,
+            label: user.nom + " " + user.prenom,
             value: user._id,
           }))
         );

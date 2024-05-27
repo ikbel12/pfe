@@ -43,6 +43,7 @@ const ReclamationForm = () => {
     type: "",
     urgency: "",
     watchers: "",
+    fournisseurId: "",
   });
 
   const [showAdvancedFields, setShowAdvancedFields] = useState(false);
@@ -157,13 +158,12 @@ const ReclamationForm = () => {
       console.error("Error fetching services:", error);
     }
   };
-
   const handleAddReclamation = async () => {
     setOpenDialog(false);
     try {
       const payload = {
         ...newReclamationData,
-        supplierName: supplierID ? supplierID.label : "",
+        fournisseurId: supplierID ? supplierID.value : "",
         serviceName: serviceID.map((service) => service.label).join(", "),
       };
 
@@ -180,7 +180,9 @@ const ReclamationForm = () => {
         position: "top-center",
         style: { background: "green", color: "white" },
       });
-      setReclamations([...reclamations, payload]);
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       toast.error("Failed to add reclamation", {
         duration: 4000,
@@ -229,6 +231,10 @@ const ReclamationForm = () => {
 
   const handleSupplierChange = async (event, newValue) => {
     setSupplierID(newValue);
+    setNewReclamationData({
+      ...newReclamationData,
+      fournisseurId: newValue ? newValue.value : "",
+    });
     if (newValue) {
       await fetchServicesBySupplier(newValue.value);
       setShowAdvancedFields(newValue.label.toLowerCase().includes("ovhcloud"));
@@ -358,7 +364,7 @@ const ReclamationForm = () => {
               onChange={(event, newValue) =>
                 setNewReclamationData({
                   ...newReclamationData,
-                  category: newValue ? newValue.label : "",
+                  category: newValue ? newValue.value : "",
                 })
               }
               renderInput={(params) => (
@@ -371,7 +377,7 @@ const ReclamationForm = () => {
               onChange={(event, newValue) =>
                 setNewReclamationData({
                   ...newReclamationData,
-                  product: newValue ? newValue.label : "",
+                  product: newValue ? newValue.value : "",
                 })
               }
               renderInput={(params) => (
@@ -386,7 +392,7 @@ const ReclamationForm = () => {
                   onChange={(event, newValue) =>
                     setNewReclamationData({
                       ...newReclamationData,
-                      subcategory: newValue ? newValue.label : "",
+                      subcategory: newValue ? newValue.value : "",
                     })
                   }
                   renderInput={(params) => (
@@ -399,7 +405,7 @@ const ReclamationForm = () => {
                   onChange={(event, newValue) =>
                     setNewReclamationData({
                       ...newReclamationData,
-                      type: newValue ? newValue.label : "",
+                      type: newValue ? newValue.value : "",
                     })
                   }
                   renderInput={(params) => (
@@ -412,7 +418,7 @@ const ReclamationForm = () => {
                   onChange={(event, newValue) =>
                     setNewReclamationData({
                       ...newReclamationData,
-                      urgency: newValue ? newValue.label : "",
+                      urgency: newValue ? newValue.value : "",
                     })
                   }
                   renderInput={(params) => (
