@@ -40,7 +40,6 @@ const Services = () => {
     fournisseur: "",
     date_debut: new Date().toISOString().split("T")[0], // Initialisation au jour actuel ( 3awneny feha chat belhy zid shouf maaya)
     date_fin: "",
-    statut: "Expired",
     type: "",
   });
   const [editSubscriptionData, setEditSubscriptionData] = useState({
@@ -82,11 +81,12 @@ const Services = () => {
     const fetchSuppliers = async () => {
       try {
         const response = await userRequest.get("/fournisseur");
-        response.data.map((supplier) => {
-          setSuppliers((prevSuppliers) => [
-            { value: supplier._id, label: supplier.nom },
-          ]);
-        });
+        setSuppliers(
+          response.data.map((supplier) => ({
+            value: supplier._id,
+            label: supplier.nom,
+          }))
+        );
       } catch (error) {
         console.log(error);
       }
@@ -208,10 +208,22 @@ const Services = () => {
   ];
 
   const handleAddSubscription = async () => {
+    const currentDate = new Date();
+    const startDate = new Date(newSubscriptionData.date_debut);
+    const endDate = newSubscriptionData.date_fin
+      ? new Date(newSubscriptionData.date_fin)
+      : null;
+
+    let status = "Active";
+    if (endDate && endDate < currentDate) {
+      status = "Expired";
+    }
+
     try {
       await userRequest.post("/service/create", {
         ...newSubscriptionData,
         fournisseurId: newSubscriptionData.fournisseur,
+        statut: status,
       });
 
       setOpenDialog(false);
@@ -370,6 +382,27 @@ const Services = () => {
       });
     }
   };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewSubscriptionData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleAutocompleteChange = (event, newValue) => {
+    if (newValue) {
+      setNewSubscriptionData((prevData) => ({
+        ...prevData,
+        fournisseur: newValue.value,
+      }));
+      setIsAutocompleteSelected(true);
+    } else {
+      setNewSubscriptionData((prevData) => ({
+        ...prevData,
+        fournisseur: "",
+      }));
+      setIsAutocompleteSelected(false);
+    }
+  };
+
   return (
     <Box>
       <Toaster />
@@ -406,15 +439,15 @@ const Services = () => {
         <DialogContent>
           <Autocomplete
             options={suppliers}
-            onChange={(event, value) => {
-              setNewSubscriptionData({
-                ...newSubscriptionData,
-                fournisseur: value.value,
-              });
-              setIsAutocompleteSelected(true);
-            }}
+            getOptionLabel={(option) => option.label}
+            onChange={handleAutocompleteChange}
             renderInput={(params) => (
-              <TextField {...params} label="Supplier" fullWidth />
+              <TextField
+                {...params}
+                label="Supplier Name"
+                margin="dense"
+                fullWidth
+              />
             )}
           />
           <TextField
