@@ -30,6 +30,8 @@ import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import LocalActivityOutlinedIcon from "@mui/icons-material/LocalActivityOutlined";
 import AddTaskOutlinedIcon from "@mui/icons-material/AddTaskOutlined";
+import PersonAddAlt1OutlinedIcon from "@mui/icons-material/PersonAddAlt1Outlined";
+import GroupAddOutlinedIcon from "@mui/icons-material/GroupAddOutlined";
 import { useLocation, useNavigate } from "react-router-dom";
 import { grey } from "@mui/material/colors";
 import { useDispatch, useSelector } from "react-redux";
@@ -132,6 +134,16 @@ const Array2 = [
     text: "Add Permessions ",
     icon: <AddTaskOutlinedIcon />,
     path: "permession",
+  },
+  {
+    text: "User Permessions ",
+    icon: <PersonAddAlt1OutlinedIcon />,
+    path: "userPermession",
+  },
+  {
+    text: "Client Permessions ",
+    icon: <GroupAddOutlinedIcon />,
+    path: "clientPermission",
   },
 ];
 
@@ -278,6 +290,8 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
         {Array2.map((item) => {
           if (item.path === "team" && !user.isAdmin) return;
           if (item.path === "permession" && !user.isAdmin) return;
+          if (item.path === "clientPermission" && !user.isAdmin) return;
+          if (item.path === "userPermession" && !user.isAdmin) return;
           // check if the role of user = admin
           return (
             <ListItem key={item.path} disablePadding sx={{ display: "block" }}>

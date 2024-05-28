@@ -204,36 +204,35 @@ const Client = () => {
     { field: "adresse", headerName: "Address", flex: 0.7 },
     { field: "telephone", headerName: "Phone Number", flex: 0.7 },
     { field: "email", headerName: "Email", flex: 0.7 },
-    { field: "services", headerName: "Services", flex: 0.7 },
+    { field: "services", headerName: "Services", flex: 1 },
     {
-      field: "actions",
-      headerName: "Actions",
-      width: 150,
-      align: "center",
-      headerAlign: "center",
-      renderCell: ({ row }) => (
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
-          <Tooltip title="Delete">
-            <IconButton
-              onClick={() => {
-                setDeleteClientId(row.id);
-                setOpenConfirmDialog(true);
-              }}
-              sx={{ color: "error.main" }}
-            >
-              <DeleteOutline />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Edit">
-            <IconButton
-              onClick={() => handleEditClick(row.id)}
-              sx={{ color: "primary.main" }}
-            >
-              <EditOutlinedIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      ),
+      ...(user?.isAdmin && {
+        field: "actions",
+        headerName: "Actions",
+        width: 150,
+        align: "center",
+        headerAlign: "center",
+        renderCell: ({ row }) => (
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+            <Tooltip title="Delete">
+              <IconButton
+                onClick={() => handleDeleteClick(row.id)}
+                sx={{ color: "error.main" }}
+              >
+                <DeleteOutline />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Edit">
+              <IconButton
+                onClick={() => handleEditClick(row.id)}
+                sx={{ color: "primary.main" }}
+              >
+                <EditOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        ),
+      }),
     },
   ];
 
@@ -332,7 +331,6 @@ const Client = () => {
               })
             }
           />
-        
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialog(false)}>Cancel</Button>

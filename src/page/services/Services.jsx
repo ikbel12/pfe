@@ -81,12 +81,13 @@ const Services = () => {
     const fetchSuppliers = async () => {
       try {
         const response = await userRequest.get("/fournisseur");
-        setSuppliers(
-          response.data.map((supplier) => ({
+        const filteredSuppliers = response.data
+          .filter((supplier) => !supplier.nom.includes("OVHcloud"))
+          .map((supplier) => ({
             value: supplier._id,
             label: supplier.nom,
-          }))
-        );
+          }));
+        setSuppliers(filteredSuppliers);
       } catch (error) {
         console.log(error);
       }

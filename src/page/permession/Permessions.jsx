@@ -429,7 +429,7 @@ const ClientPermissionCard = ({
   );
 };
 
-const PermissionUser = () => {
+const Permessions = () => {
   const [users, setUsers] = useState([]);
   const [clients, setClients] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -508,4 +508,4 @@ const PermissionUser = () => {
   );
 };
 
-export default PermissionUser;
+export default Permessions;

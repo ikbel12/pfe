@@ -20,10 +20,12 @@ import { persistor, store } from "./redux/store";
 import { PersistGate } from "redux-persist/integration/react";
 import SettingAlert from "./page/settingalert/SettingAlert";
 import ChangePassword from "./page/auth/ChangePassword";
-import PermessionUser from "./page/permession/PermessionUser";
 import Services from "./page/services/Services";
 import SeeAlerts from "./page/seeAlert/SeeAlerts";
 import Facture from "./page/facture/Facture";
+import Permessions from "./page/permession/Permessions";
+import UserPermissions from "./page/userPermession/UserPermessions";
+import ClientPermissions from "./page/clientPermission/ClientPermissions";
 
 function ProtectedRoute({ children }) {
   // @ts-ignore
@@ -133,7 +135,27 @@ const routes = (
         element={
           <ProtectedRoute>
             <ProtectAdminRoute>
-              <PermessionUser />
+              <Permessions />
+            </ProtectAdminRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="userPermession"
+        element={
+          <ProtectedRoute>
+            <ProtectAdminRoute>
+              <UserPermissions />
+            </ProtectAdminRoute>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="clientPermission"
+        element={
+          <ProtectedRoute>
+            <ProtectAdminRoute>
+              <ClientPermissions />
             </ProtectAdminRoute>
           </ProtectedRoute>
         }
