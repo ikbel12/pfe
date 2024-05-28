@@ -17,7 +17,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { login } from "../../redux/apiCalls";
 import { Toaster } from "react-hot-toast";
 import ResetDialog from "../../components/ResetDialog";
-import aziz from "../../../public/assets/cloud.png";
+
 
 function SignInSide() {
   const navigate = useNavigate();
@@ -64,7 +64,7 @@ function SignInSide() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage: aziz,
+            backgroundImage: "url(http://localhost:5173/assets/cloud.png)",
             backgroundColor: (t) =>
               t.palette.mode === "light"
                 ? t.palette.grey[50]
