@@ -267,6 +267,8 @@ const ReclamationForm = () => {
     );
   };
 
+  console.log(reclamations);
+
   const columns = [
     { field: "subject", headerName: "Subject", flex: 1 },
     { field: "body", headerName: "Body", flex: 1 },
@@ -314,21 +316,35 @@ const ReclamationForm = () => {
       ),
     },
   ];
-  /*
+  
   const handleSyncClick = async () => {
     try {
       await userRequest.get("/sync/sync-reclamations");
+      toast.success("Reclamations synchronized successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+
     } catch (error) {
       console.log(error);
+      toast.error("Failed to synchronize reclamations", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
     }
-  };*/
+  };
 
   return (
     <Box>
       <Toaster />
       <Header title="Reclamations" subTitle="List of CLOUD Reclamations" />{" "}
       <Tooltip title="Synchronize">
-        <IconButton /*onClick={handleSyncClick}*/ color="primary">
+        <IconButton onClick={handleSyncClick} color="primary">
           <SyncIcon />
         </IconButton>
       </Tooltip>

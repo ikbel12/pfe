@@ -23,6 +23,7 @@ import SyncIcon from "@mui/icons-material/Sync";
 import Header from "../../components/Header";
 import { userRequest } from "../../requestMethod";
 import toast, { Toaster } from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 const Services = () => {
   const theme = useTheme();
@@ -35,6 +36,8 @@ const Services = () => {
   const [deleteSubscriptionId, setDeleteSubscriptionId] = useState(null);
   const [updateSubscriptionId, setUpdateSubscriptionId] = useState(null);
   const [editSubscriptionId, setEditSubscriptionId] = useState(null);
+  // @ts-ignore
+  const user = useSelector((state) => state?.user?.userInfo);
   const [newSubscriptionData, setNewSubscriptionData] = useState({
     nom: "",
     fournisseur: "",
@@ -50,7 +53,6 @@ const Services = () => {
   });
   const [expiryDate, setExpiryDate] = useState("");
   const [isAutocompleteSelected, setIsAutocompleteSelected] = useState(false);
-  console.log(subscriptions);
   // Get the current date
   const today = new Date(newSubscriptionData.date_debut);
   today.setDate(today.getDate() + 1);
@@ -58,10 +60,12 @@ const Services = () => {
   const minDate = `${today.getFullYear()}-${String(
     today.getMonth() + 1
   ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  console.log("hello",user)
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
-        const response = await userRequest.get("/service/getAllServices");
+        if(user.isAdmin) {
+          const response = await userRequest.get("/service/getAllServices");
         setSubscriptions(
           response.data.map((subscription) => ({
             id: subscription._id,
@@ -73,6 +77,21 @@ const Services = () => {
             type: subscription.type,
           }))
         );
+        } else {
+          const response = await userRequest.get(`/service/getserviceswithuser`);
+          setSubscriptions(
+            response.data.map((subscription) => ({
+              id: subscription._id,
+              nom: subscription.nom,
+              fournisseur: subscription?.fournisseur?.nom,
+              date_debut: subscription.date_debut,
+              date_fin: subscription.date_fin,
+              statut: subscription.statut,
+              type: subscription.type,
+            }))
+          );
+        }
+        
       } catch (error) {
         console.log(error);
       }
