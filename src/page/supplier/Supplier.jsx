@@ -18,7 +18,7 @@ import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
 import { useSelector } from "react-redux";
-import SyncIcon from "@mui/icons-material/Sync";
+
 
 const Supplier = () => {
   // @ts-ignore
@@ -271,11 +271,6 @@ const Supplier = () => {
       }),
     }
   ];
-
-  const handleSyncClick = async () => {
-
-  };
-
   const handleSupplierNameChange = (e) => {
     const value = e.target.value;
     setNewSupplierData({

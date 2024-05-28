@@ -15,8 +15,13 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import DeleteOutline from "@mui/icons-material/DeleteOutline";
 import AddCircleOutline from "@mui/icons-material/AddCircleOutline";
+import SyncIcon from "@mui/icons-material/Sync";
+import {
+  DeleteOutlineOutlined,
+  EditOutlined,
+  CloseOutlined,
+} from "@mui/icons-material";
 import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
@@ -31,7 +36,7 @@ const ReclamationForm = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteReclamationId, setDeleteReclamationId] = useState(null);
-
+  const [showHint, setShowHint] = useState(false);
   const [newReclamationData, setNewReclamationData] = useState({
     supplierName: "",
     subject: "",
@@ -142,6 +147,15 @@ const ReclamationForm = () => {
 
     fetchData();
   }, []);
+  const handleEditClick = (id) => {
+    // Your edit functionality here
+    console.log("Edit clicked for id:", id);
+  };
+
+  const handleCloseClick = (id) => {
+    // Your close functionality here
+    console.log("Close clicked for id:", id);
+  };
 
   const fetchServicesBySupplier = async (supplierId) => {
     try {
@@ -265,21 +279,59 @@ const ReclamationForm = () => {
       flex: 0.5,
       sortable: false,
       renderCell: (params) => (
-        <Tooltip title="Delete Reclamation" arrow>
-          <IconButton
-            onClick={() => handleDeleteClick(params.row.id)}
-            style={{ color: "red" }}
-          >
-            <DeleteOutline />
-          </IconButton>
-        </Tooltip>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-around",
+            width: "100%",
+          }}
+        >
+          <Tooltip title="Delete Reclamation" arrow>
+            <IconButton
+              onClick={() => handleDeleteClick(params.row.id)}
+              style={{ color: "red" }}
+            >
+              <DeleteOutlineOutlined />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Edit Reclamation" arrow>
+            <IconButton
+              onClick={() => handleEditClick(params.row.id)}
+              sx={{ color: theme.palette.primary.main }}
+            >
+              <EditOutlined />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Close Reclamation" arrow>
+            <IconButton
+              onClick={() => handleCloseClick(params.row.id)}
+              style={{ color: "black" }}
+            >
+              <CloseOutlined />
+            </IconButton>
+          </Tooltip>
+        </div>
       ),
     },
   ];
+  /*
+  const handleSyncClick = async () => {
+    try {
+      await userRequest.get("/sync/sync-reclamations");
+    } catch (error) {
+      console.log(error);
+    }
+  };*/
+
   return (
     <Box>
       <Toaster />
-      <Header title="Reclamations" subTitle="List of CLOUD Reclamations" />
+      <Header title="Reclamations" subTitle="List of CLOUD Reclamations" />{" "}
+      <Tooltip title="Synchronize">
+        <IconButton /*onClick={handleSyncClick}*/ color="primary">
+          <SyncIcon />
+        </IconButton>
+      </Tooltip>
       <Box
         sx={{
           display: "flex",
@@ -434,6 +486,13 @@ const ReclamationForm = () => {
                       watchers: e.target.value,
                     })
                   }
+                  onFocus={() => setShowHint(true)}
+                  onBlur={() => setShowHint(false)}
+                  helperText={
+                    showHint
+                      ? "if you want to add more than one email the correct form is : ['email1',..,'email10']"
+                      : ""
+                  }
                 />
               </>
             )}
@@ -452,7 +511,6 @@ const ReclamationForm = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
       <Dialog
         open={openConfirmDialog}
         onClose={() => setOpenConfirmDialog(false)}

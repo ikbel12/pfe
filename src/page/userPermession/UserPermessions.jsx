@@ -89,9 +89,10 @@ const UserPermissions = () => {
         processedRows.push({
           id: `${user._id}-${service._id}`,
           userId: index === 0 ? user._id : "", // Only set userId for the first row
-          firstName: index === 0 ? user.firstName : "", // Only set firstName for the first row
-          lastName: index === 0 ? user.lastName : "", // Only set lastName for the first row
+          firstName: index === 0 ? user.prenom : "", // Only set firstName for the first row
+          lastName: index === 0 ? user.nom : "", // Only set lastName for the first row
           userSpan: index === 0 ? userSpan : 0, // Set rowSpan for the first row
+          serviceId: service._id,
           serviceName: service.nom,
         });
       });
@@ -108,14 +109,14 @@ const UserPermissions = () => {
       flex: 1,
       renderCell: (params) => {
         const { userSpan } = params.row;
-        return (
+        return params.value ? (
           <Box
             sx={{ display: "flex", alignItems: "center" }}
             style={{ gridRowEnd: `span ${userSpan}` }}
           >
             {params.value}
           </Box>
-        );
+        ) : null;
       },
     },
     {
@@ -124,14 +125,14 @@ const UserPermissions = () => {
       flex: 1,
       renderCell: (params) => {
         const { userSpan } = params.row;
-        return (
+        return params.value ? (
           <Box
             sx={{ display: "flex", alignItems: "center" }}
             style={{ gridRowEnd: `span ${userSpan}` }}
           >
             {params.value}
           </Box>
-        );
+        ) : null;
       },
     },
     {
@@ -140,14 +141,14 @@ const UserPermissions = () => {
       flex: 1,
       renderCell: (params) => {
         const { userSpan } = params.row;
-        return (
+        return params.value ? (
           <Box
             sx={{ display: "flex", alignItems: "center" }}
             style={{ gridRowEnd: `span ${userSpan}` }}
           >
             {params.value}
           </Box>
-        );
+        ) : null;
       },
     },
     { field: "serviceName", headerName: "Service Name", flex: 1 },

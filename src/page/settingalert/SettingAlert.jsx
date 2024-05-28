@@ -30,8 +30,11 @@ const SettingAlert = () => {
   const [confirm, setConfirm] = useState(false);
   const [days, setDays] = useState(null);
   const [globalDays, setGlobalDays] = useState(null);
+  const [settingsDialogOpen, setSettingsDialogOpen] = useState(false);
+  const [userSettings, setUserSettings] = useState(null);
   // @ts-ignore
   const user = useSelector((state) => state.user.userInfo);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,6 +50,43 @@ const SettingAlert = () => {
 
     fetchData();
   }, []);
+
+  const fetchUserSettings = async () => {
+    try {
+      const response = await userRequest.get(`/settings/${user._id}`);
+      const settings = response.data;
+
+      // Map service names to their IDs
+      const serviceIdToNameMap = services.reduce((acc, service) => {
+        acc[service._id] = service.nom;
+        return acc;
+      }, {});
+
+      // Add service names to custom notifications
+      const updatedCustomNotifications = settings.customNotifications.map(
+        (notif) => ({
+          ...notif,
+          serviceName: serviceIdToNameMap[notif.serviceId],
+        })
+      );
+
+      setUserSettings({
+        ...settings,
+        customNotifications: updatedCustomNotifications,
+      });
+      setSettingsDialogOpen(true);
+    } catch (error) {
+      console.error("Error fetching user settings:", error);
+      toast.error("Error fetching settings", {
+        duration: 4000,
+        position: "top-right",
+      });
+    }
+  };
+
+  const handleSettingsDialogClose = () => {
+    setSettingsDialogOpen(false);
+  };
 
   const handleConfirmClose = () => {
     setOpen(false);
@@ -80,10 +120,11 @@ const SettingAlert = () => {
     setConfirm(false);
     handleConfirmClose(); // Ferme la boîte de dialogue lorsque Cancel est cliqué
   };
+
   const handleConfirmOpen = () => {
     setOpen(true);
   };
-  console.log(days);
+
   const handleSubmit = async () => {
     handleConfirmClose();
     try {
@@ -119,6 +160,15 @@ const SettingAlert = () => {
         subTitle="Adjust your alert settings here"
       />
       <Box sx={{ padding: 0.5 }}></Box>
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button
+          variant="contained"
+          onClick={fetchUserSettings}
+          sx={{ mb: 2, textTransform: "capitalize" }}
+        >
+          See All Your Settings
+        </Button>
+      </Box>
       <Card variant="outlined" sx={{ mt: 3 }}>
         <CardContent>
           <Typography variant="h6" gutterBottom color={"#DAB30A"}>
@@ -217,6 +267,50 @@ const SettingAlert = () => {
           <Button onClick={handleConfirm} autoFocus>
             Confirm
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={settingsDialogOpen}
+        onClose={handleSettingsDialogClose}
+        aria-labelledby="settings-dialog-title"
+        aria-describedby="settings-dialog-description"
+      >
+        <DialogTitle id="settings-dialog-title">{"Your Settings"}</DialogTitle>
+        <DialogContent>
+          {userSettings ? (
+            <Box>
+              <Typography variant="h6">
+                Global Notification Days: {userSettings.globalNotificationDays}
+              </Typography>
+              <Typography variant="h6">Custom Notifications:</Typography>
+              {userSettings.customNotifications.length > 0 ? (
+                userSettings.customNotifications.map((notif) => (
+                  <Box key={notif.serviceId} sx={{ mb: 2 }}>
+                    <Typography variant="body1">
+                      Service ID: {notif.serviceId}
+                    </Typography>
+                    <Typography variant="body1">
+                      Service Name: {notif.serviceName}
+                    </Typography>
+                    <Typography variant="body1">
+                      Notification Days: {notif.notificationDays}
+                    </Typography>
+                    <Divider />
+                  </Box>
+                ))
+              ) : (
+                <Typography variant="body1">
+                  No custom notifications set.
+                </Typography>
+              )}
+            </Box>
+          ) : (
+            <CircularProgress />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSettingsDialogClose}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

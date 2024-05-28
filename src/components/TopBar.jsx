@@ -222,7 +222,7 @@ const TopBar = ({ open, handleDrawerOpen, setMode }) => {
                 )}
               </MenuItem>
             ))}
-            {notification.length > 4 && (
+            {notification.length > 1 && (
               <MenuItem onClick={handleSeeAllNotifications}>
                 See All alerts
               </MenuItem>
