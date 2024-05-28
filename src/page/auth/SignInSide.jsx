@@ -17,6 +17,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { login } from "../../redux/apiCalls";
 import { Toaster } from "react-hot-toast";
 import ResetDialog from "../../components/ResetDialog";
+import aziz from "../../../public/assets/cloud.png";
 
 function SignInSide() {
   const navigate = useNavigate();
@@ -28,8 +29,9 @@ function SignInSide() {
   // @ts-ignore
   const errorMessage = useSelector((state) => state?.user?.error); // 2
 
-
-  const handleSubmit = async (/** @type {{ preventDefault: () => void; }} */ event) => {
+  const handleSubmit = async (
+    /** @type {{ preventDefault: () => void; }} */ event
+  ) => {
     event.preventDefault();
     try {
       await login(dispatch, { email, password });
@@ -62,9 +64,7 @@ function SignInSide() {
           sm={4}
           md={7}
           sx={{
-            backgroundImage:
-              "url(https://source.unsplash.com/random?wallpapers)",
-            backgroundRepeat: "no-repeat",
+            backgroundImage: aziz,
             backgroundColor: (t) =>
               t.palette.mode === "light"
                 ? t.palette.grey[50]
@@ -73,6 +73,7 @@ function SignInSide() {
             backgroundPosition: "center",
           }}
         />
+
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
