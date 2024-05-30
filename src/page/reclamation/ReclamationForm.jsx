@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -37,6 +38,8 @@ const ReclamationForm = () => {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [deleteReclamationId, setDeleteReclamationId] = useState(null);
   const [showHint, setShowHint] = useState(false);
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [userDataToUpdate, setUserDataToUpdate] = useState({});
   const [newReclamationData, setNewReclamationData] = useState({
     supplierName: "",
     subject: "",
@@ -147,14 +150,27 @@ const ReclamationForm = () => {
 
     fetchData();
   }, []);
-  const handleEditClick = (id) => {
-    // Your edit functionality here
-    console.log("Edit clicked for id:", id);
+  const handleEditClick = (user) => {
+    setUserDataToUpdate(user);
+    setOpenUpdateDialog(true);
   };
 
-  const handleCloseClick = (id) => {
-    // Your close functionality here
-    console.log("Close clicked for id:", id);
+  const handleCloseClick = async(id) => {
+    try {
+      await userRequest.post("reclamation/123/close");
+      toast.success("Reclamation closed successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to close reclamation", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
   };
 
   const fetchServicesBySupplier = async (supplierId) => {
@@ -267,7 +283,6 @@ const ReclamationForm = () => {
     );
   };
 
-  console.log(reclamations);
 
   const columns = [
     { field: "subject", headerName: "Subject", flex: 1 },
@@ -298,7 +313,7 @@ const ReclamationForm = () => {
           </Tooltip>
           <Tooltip title="Edit Reclamation" arrow>
             <IconButton
-              onClick={() => handleEditClick(params.row.id)}
+              onClick={() => handleEditClick(params.row)}
               sx={{ color: theme.palette.primary.main }}
             >
               <EditOutlined />
@@ -337,7 +352,24 @@ const ReclamationForm = () => {
       });
     }
   };
-
+  const handleUpdateReclamation = async () => {
+    try {
+      await userRequest.patch("/reclamation/123", userDataToUpdate);
+      toast.success("Reclamation updated successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to update reclamation", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+  }
+  console.log(userDataToUpdate)
   return (
     <Box>
       <Toaster />
@@ -543,6 +575,89 @@ const ReclamationForm = () => {
           </Button>
           <Button onClick={handleConfirmDelete} color="secondary">
             Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+
+
+      {/* ------------------------------------------------- UPDATE ---------------------------------------------- */}
+      <Dialog open={openUpdateDialog} onClose={() => setOpenUpdateDialog(false)}>
+        <DialogTitle>Edit Reclamation</DialogTitle>
+        <DialogContent>
+          <Box
+            display="flex"
+            flexDirection="column"
+            gap="16px"
+            width="500px"
+            mt="10px"
+          >
+            <TextField
+              label="Subject"
+              required
+              value={userDataToUpdate?.subject}
+              onChange={(e) =>
+                setUserDataToUpdate({
+                  ...userDataToUpdate,
+                  subject: e.target.value,
+                })
+              }
+            />
+            <TextField
+              label="Body"
+              required
+              multiline
+              rows={4}
+              value={userDataToUpdate?.body}
+              onChange={(e) =>
+                setUserDataToUpdate({
+                  ...userDataToUpdate,
+                  body: e.target.value,
+                })
+              }
+            />
+            <Autocomplete
+              options={categories}
+              defaultValue={userDataToUpdate?.category}
+              defaultChecked={userDataToUpdate?.category}
+              // getOptionLabel={(option) => option.label}
+              onChange={(event, newValue) =>
+                setUserDataToUpdate({
+                  ...userDataToUpdate,
+                  category: newValue ? newValue.value : "",
+                })
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Category" />
+              )}
+            />
+            <Autocomplete
+              options={products}
+              // getOptionLabel={(option) => option.label}
+              defaultValue={userDataToUpdate?.product}
+              defaultChecked={userDataToUpdate?.product}
+              onChange={(event, newValue) =>
+                setUserDataToUpdate({
+                  ...userDataToUpdate,
+                  product: newValue ? newValue.value : "",
+                })
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Product" />
+              )}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenUpdateDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUpdateReclamation}
+            color="primary"
+          >
+            Update
           </Button>
         </DialogActions>
       </Dialog>

@@ -29,6 +29,7 @@ const UserPermissions = () => {
       try {
         const response = await userRequest.get("/user/getAllUsersWithServices");
         setUsers(response.data);
+        console.log(users);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -39,6 +40,7 @@ const UserPermissions = () => {
 
   const handleDeleteService = async () => {
     const { userId, serviceId } = deleteInfo;
+    console.log(serviceId);
     try {
       await userRequest.post(`/user/removeServiceFromUser`, {
         userId,
@@ -81,26 +83,17 @@ const UserPermissions = () => {
     setOpenConfirmDialog(false);
   };
 
-  const preprocessedRows = (users) => {
-    const processedRows = [];
-    users.forEach((user) => {
-      let userSpan = user.services.length;
-      user.services.forEach((service, index) => {
-        processedRows.push({
-          id: `${user._id}-${service._id}`,
-          userId: index === 0 ? user._id : "", // Only set userId for the first row
-          firstName: index === 0 ? user.prenom : "", // Only set firstName for the first row
-          lastName: index === 0 ? user.nom : "", // Only set lastName for the first row
-          userSpan: index === 0 ? userSpan : 0, // Set rowSpan for the first row
-          serviceId: service._id,
-          serviceName: service.nom,
-        });
-      });
-    });
-    return processedRows;
-  };
 
-  const rows = preprocessedRows(users);
+  const rows = users.map((user) => {
+    return user.services.map((service) => ({
+      id: `${user._id}-${service._id}`,
+      userId: user._id,
+      firstName: user.prenom,
+      lastName: user.nom,
+      serviceName: service.nom,
+      serviceId: service._id,
+    }));
+  }).flat();
 
   const columns = [
     {

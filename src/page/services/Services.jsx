@@ -350,9 +350,10 @@ const Services = () => {
 
   const handleConfirmEdit = async () => {
     try {
+      const {fournisseur, ...others} = editSubscriptionData;
       await userRequest.patch(
         `/service/updateservice/${editSubscriptionId}`,
-        editSubscriptionData
+        others
       );
       setOpenEditDialog(false);
       toast.success("Service edited successfully", {
