@@ -10,6 +10,8 @@ import {
   Typography,
   Tooltip,
   IconButton,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
@@ -18,7 +20,6 @@ import Header from "../../components/Header";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
 import { useSelector } from "react-redux";
-
 
 const Supplier = () => {
   // @ts-ignore
@@ -39,7 +40,6 @@ const Supplier = () => {
   const [editMode, setEditMode] = useState(false);
   const [editSupplierId, setEditSupplierId] = useState(null);
   const [showKeys, setShowKeys] = useState(false);
-  const [showHint, setShowHint] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -101,10 +101,12 @@ const Supplier = () => {
   const handleAddSupplier = async () => {
     if (
       showKeys &&
-      (!newSupplierData.ovhApiKey || !newSupplierData.ovhSecret || !newSupplierData.ovhConsumerKey)
+      (!newSupplierData.ovhApiKey ||
+        !newSupplierData.ovhSecret ||
+        !newSupplierData.ovhConsumerKey)
     ) {
       setError(
-        "ovhApiKey, ovhSecret, and ovhConsumerKey are required if the supplier name contains 'OVHcloud'"
+        "ovhApiKey, ovhSecret, and ovhConsumerKey are required if the supplier is an OVH Fournisseur"
       );
       return;
     }
@@ -175,24 +177,29 @@ const Supplier = () => {
   const handleUpdateSupplier = async () => {
     if (
       showKeys &&
-      (!newSupplierData.ovhApiKey || !newSupplierData.ovhSecret || !newSupplierData.ovhConsumerKey)
+      (!newSupplierData.ovhApiKey ||
+        !newSupplierData.ovhSecret ||
+        !newSupplierData.ovhConsumerKey)
     ) {
       setError(
-        "ovh Api Key, ovh Secret, and ovh Consumer Key are required if the supplier name contains 'OVHcloud'"
+        "ovh Api Key, ovh Secret, and ovh Consumer Key are required if the supplier is an OVH Fournisseur"
       );
       return;
     }
 
     try {
-      const response = await userRequest.patch(`/fournisseur/update/${editSupplierId}`, {
-        nom: newSupplierData.supplierName,
-        telephone: newSupplierData.phone,
-        adresse: newSupplierData.address,
-        email: newSupplierData.email,
-        ovhApiKey: newSupplierData.ovhApiKey,
-        ovhSecret: newSupplierData.ovhSecret,
-        ovhConsumerKey: newSupplierData.ovhConsumerKey,
-      });
+      const response = await userRequest.patch(
+        `/fournisseur/update/${editSupplierId}`,
+        {
+          nom: newSupplierData.supplierName,
+          telephone: newSupplierData.phone,
+          adresse: newSupplierData.address,
+          email: newSupplierData.email,
+          ovhApiKey: newSupplierData.ovhApiKey,
+          ovhSecret: newSupplierData.ovhSecret,
+          ovhConsumerKey: newSupplierData.ovhConsumerKey,
+        }
+      );
 
       setSuppliers(
         suppliers.map((supplier) =>
@@ -269,16 +276,8 @@ const Supplier = () => {
           </Box>
         ),
       }),
-    }
+    },
   ];
-  const handleSupplierNameChange = (e) => {
-    const value = e.target.value;
-    setNewSupplierData({
-      ...newSupplierData,
-      supplierName: value,
-    });
-    setShowKeys(value.includes("OVHcloud"));
-  };
 
   return (
     <Box>
@@ -291,7 +290,6 @@ const Supplier = () => {
         mb={2}
         px={2}
       >
-        
         {user?.isAdmin && (
           <Button
             variant="contained"
@@ -310,19 +308,22 @@ const Supplier = () => {
           columns={columns}
         />
       </Box>
-      <Dialog open={openDialog} onClose={() => {
-        setOpenDialog(false)
-        setNewSupplierData({
-          supplierName: "",
-          phone: "",
-          address: "",
-          email: "",
-          ovhApiKey: "",
-          ovhSecret: "",
-          ovhConsumerKey: "",
-        })
-        setShowKeys(false);
-      }}>
+      <Dialog
+        open={openDialog}
+        onClose={() => {
+          setOpenDialog(false);
+          setNewSupplierData({
+            supplierName: "",
+            phone: "",
+            address: "",
+            email: "",
+            ovhApiKey: "",
+            ovhSecret: "",
+            ovhConsumerKey: "",
+          });
+          setShowKeys(false);
+        }}
+      >
         <DialogTitle>
           {editMode ? "Edit Supplier" : "Add New Supplier"}
         </DialogTitle>
@@ -332,11 +333,11 @@ const Supplier = () => {
             label="Supplier Name"
             fullWidth
             value={newSupplierData.supplierName}
-            onChange={handleSupplierNameChange}
-            onFocus={() => setShowHint(true)}
-            onBlur={() => setShowHint(false)}
-            helperText={
-              showHint ? "If your supplier is OVHcloud, write it correctly" : ""
+            onChange={(e) =>
+              setNewSupplierData({
+                ...newSupplierData,
+                supplierName: e.target.value,
+              })
             }
           />
           <TextField
@@ -369,6 +370,15 @@ const Supplier = () => {
               })
             }
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showKeys}
+                onChange={(e) => setShowKeys(e.target.checked)}
+              />
+            }
+            label="OVH Supplier"
+          />
           {showKeys && (
             <>
               <TextField
@@ -385,7 +395,9 @@ const Supplier = () => {
                 required
                 error={showKeys && !newSupplierData.ovhApiKey}
                 helperText={
-                  showKeys && !newSupplierData.ovhApiKey ? "ovh Api Key is required" : ""
+                  showKeys && !newSupplierData.ovhApiKey
+                    ? "ovh Api Key is required"
+                    : ""
                 }
               />
               <TextField
@@ -402,7 +414,9 @@ const Supplier = () => {
                 required
                 error={showKeys && !newSupplierData.ovhSecret}
                 helperText={
-                  showKeys && !newSupplierData.ovhSecret ? "ovh Secret is required" : ""
+                  showKeys && !newSupplierData.ovhSecret
+                    ? "ovh Secret is required"
+                    : ""
                 }
               />
               <TextField
@@ -419,7 +433,9 @@ const Supplier = () => {
                 required
                 error={showKeys && !newSupplierData.ovhConsumerKey}
                 helperText={
-                  showKeys && !newSupplierData.ovhConsumerKey ? "ovh Consumer Key is required" : ""
+                  showKeys && !newSupplierData.ovhConsumerKey
+                    ? "ovh Consumer Key is required"
+                    : ""
                 }
               />
             </>
@@ -427,19 +443,23 @@ const Supplier = () => {
           {error && <Typography color="error">{error}</Typography>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => {
-            setOpenDialog(false)
-            setNewSupplierData({
-              supplierName: "",
-              phone: "",
-              address: "",
-              email: "",
-              ovhApiKey: "",
-              ovhSecret: "",
-              ovhConsumerKey: "",
-            })
-            setShowKeys(false);
-          }}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setOpenDialog(false);
+              setNewSupplierData({
+                supplierName: "",
+                phone: "",
+                address: "",
+                email: "",
+                ovhApiKey: "",
+                ovhSecret: "",
+                ovhConsumerKey: "",
+              });
+              setShowKeys(false);
+            }}
+          >
+            Cancel
+          </Button>
           <Button onClick={editMode ? handleUpdateSupplier : handleAddSupplier}>
             {editMode ? "Update" : "Add"}
           </Button>

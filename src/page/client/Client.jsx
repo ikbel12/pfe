@@ -164,7 +164,7 @@ const Client = () => {
 
   const handleUpdateClient = async () => {
     try {
-      await userRequest.put(`/client/updateclient/${editClientId}`, {
+      await userRequest.patch(`/client/updateclient/${editClientId}`, {
         nom: newClientData.nom,
         telephone: newClientData.telephone,
         adresse: newClientData.adresse,

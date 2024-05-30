@@ -316,7 +316,7 @@ const ReclamationForm = () => {
       ),
     },
   ];
-  
+
   const handleSyncClick = async () => {
     try {
       await userRequest.get("/sync/sync-reclamations");
@@ -328,7 +328,6 @@ const ReclamationForm = () => {
       setTimeout(() => {
         window.location.reload();
       }, 2000);
-
     } catch (error) {
       console.log(error);
       toast.error("Failed to synchronize reclamations", {
@@ -343,11 +342,6 @@ const ReclamationForm = () => {
     <Box>
       <Toaster />
       <Header title="Reclamations" subTitle="List of CLOUD Reclamations" />{" "}
-      <Tooltip title="Synchronize">
-        <IconButton onClick={handleSyncClick} color="primary">
-          <SyncIcon />
-        </IconButton>
-      </Tooltip>
       <Box
         sx={{
           display: "flex",
@@ -355,6 +349,7 @@ const ReclamationForm = () => {
           alignItems: "center",
           mb: 2,
           px: 2,
+          gap: 2, // Adds spacing between the buttons
         }}
       >
         <Button
@@ -365,6 +360,11 @@ const ReclamationForm = () => {
         >
           Create Reclamation
         </Button>
+        <Tooltip title="Synchronize">
+          <IconButton onClick={handleSyncClick} color="primary">
+            <SyncIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
       <Box sx={{ height: 650, width: "99%", mx: "auto" }}>
         <DataGrid

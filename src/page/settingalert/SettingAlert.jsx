@@ -39,17 +39,13 @@ const SettingAlert = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        if (user.isAdmin) {
-          const response = await userRequest.get("/service/getallservices");
-          setServices(response.data);
-          setLoading(false);
-        } else {
+       
           const response = await userRequest.get("/service/getserviceswithuser");
           setServices(response.data);
           setLoading(false);
         }
 
-      } catch (error) {
+      catch (error) {
         console.error("Error fetching services:", error);
         setLoading(false);
       }

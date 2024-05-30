@@ -82,7 +82,9 @@ const TopBar = ({ open, handleDrawerOpen, setMode }) => {
         notif._id === id ? { ...notif, statut: "read" } : notif
       );
       setNotification(updatedNotifications);
-      setNotifCount(notifCount - 1);
+      setNotifCount(
+        updatedNotifications.filter((notif) => notif.statut === "unread").length
+      );
     } catch (error) {
       console.log(error);
     }
@@ -222,13 +224,13 @@ const TopBar = ({ open, handleDrawerOpen, setMode }) => {
                 )}
               </MenuItem>
             ))}
-            {notification.length > 1 && (
+            {notifCount === 0 && (
+              <MenuItem onClick={handleClose}>No notifications</MenuItem>
+            )}
+            {notification.length > 1 && notifCount > 0 && (
               <MenuItem onClick={handleSeeAllNotifications}>
                 See All alerts
               </MenuItem>
-            )}
-            {notification.length === 0 && (
-              <MenuItem onClick={handleClose}>No notifications</MenuItem>
             )}
           </Menu>
         </Stack>

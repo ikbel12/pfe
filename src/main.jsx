@@ -11,8 +11,6 @@ import Team from "./page/team/Team";
 import Client from "./page/client/Client";
 import Supplier from "./page/supplier/Supplier";
 import BarChart from "./page/barChart/BarChart";
-import PieChart from "./page/pieChart/PieChart";
-import LineChart from "./page/lineChart/LineChart";
 import NotFound from "./page/notFound/NotFound";
 import ResetPasswordForm from "./page/auth/ResetPasswordForm";
 import ReclamationForm from "./page/reclamation/ReclamationForm";
@@ -165,22 +163,6 @@ const routes = (
         element={
           <ProtectedRoute>
             <BarChart />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="pie"
-        element={
-          <ProtectedRoute>
-            <PieChart />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="line"
-        element={
-          <ProtectedRoute>
-            <LineChart />
           </ProtectedRoute>
         }
       />

@@ -27,7 +27,7 @@ import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import ReportProblemOutlinedIcon from "@mui/icons-material/ReportProblemOutlined";
 import Diversity1OutlinedIcon from "@mui/icons-material/Diversity1Outlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
-import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
+import NotificationImportantOutlinedIcon from "@mui/icons-material/NotificationImportantOutlined";
 import LocalActivityOutlinedIcon from "@mui/icons-material/LocalActivityOutlined";
 import AddTaskOutlinedIcon from "@mui/icons-material/AddTaskOutlined";
 import PersonAddAlt1OutlinedIcon from "@mui/icons-material/PersonAddAlt1Outlined";
@@ -37,7 +37,7 @@ import { grey } from "@mui/material/colors";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/apiCalls";
 import ProfileDialog from "../page/profile/ProfileDialog";
-import AddAlertOutlinedIcon from "@mui/icons-material/AddAlertOutlined";
+import EditNotificationsOutlinedIcon from "@mui/icons-material/EditNotificationsOutlined";
 import PointOfSaleOutlinedIcon from "@mui/icons-material/PointOfSaleOutlined";
 const drawerWidth = 240;
 const openedMixin = (theme) => ({
@@ -112,13 +112,13 @@ const Array1 = [
   },
   {
     text: "Setting Alert",
-    icon: <CalendarMonthOutlinedIcon />,
+    icon: <EditNotificationsOutlinedIcon />,
     path: "alertsetting",
   },
 
   {
     text: " See All Alerts",
-    icon: <AddAlertOutlinedIcon />,
+    icon: <NotificationImportantOutlinedIcon />,
     path: "seeAlert",
   },
   {

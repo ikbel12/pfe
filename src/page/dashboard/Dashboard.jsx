@@ -1,7 +1,8 @@
 import React from "react";
-import Row1 from "./Row1";
-import Row2 from "./Row2";
-import Row3 from "./Row3";
+//import Row1 from "./Row1";
+//import Row2 from "./Row2";
+//import Row3 from "./Row3";
+import Charts from "./charts";
 import Button from "@mui/material/Button";
 import { DownloadOutlined } from "@mui/icons-material";
 import { Box, Stack, Typography, useTheme } from "@mui/material";
@@ -30,9 +31,7 @@ const Dashboard = () => {
         </Box>
 </Stack>
 
-      <Row1 />
-      <Row2 />
-      <Row3 />
+      <Charts />
     </div>
   );
 };

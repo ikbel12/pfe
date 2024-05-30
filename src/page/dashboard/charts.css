@@ -1,0 +1,16 @@
+.charts-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+  
+  .chart-item {
+    flex: 1;
+    min-width: 300px; /* Ajustez la largeur minimale selon vos besoins */
+    margin: 10px;
+  }
+  
+  .chart-item h1 {
+    text-align: center;
+  }
+  
