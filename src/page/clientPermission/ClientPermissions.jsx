@@ -84,14 +84,12 @@ const ClientPermissions = () => {
   const preprocessedRows = (clients) => {
     const processedRows = [];
     clients.forEach((client) => {
-      let clientSpan = client.services.length;
-      client.services.forEach((service, index) => {
+      client.services.forEach((service) => {
         processedRows.push({
           id: `${client._id}-${service._id}`,
-          clientId: index === 0 ? client._id : "", // Only set clientId for the first row
+          clientId: client._id,
+          clientName: client.nom,
           serviceId: service._id,
-          clientName: index === 0 ? client.nom : "", // Only set clientName for the first row
-          clientSpan: index === 0 ? clientSpan : 0, // Set rowSpan for the first row
           serviceName: service.nom,
         });
       });
@@ -102,38 +100,8 @@ const ClientPermissions = () => {
   const rows = preprocessedRows(clients);
 
   const columns = [
-    {
-      field: "clientId",
-      headerName: "Client ID",
-      flex: 1,
-      renderCell: (params) => {
-        const { clientSpan } = params.row;
-        return (
-          <Box
-            sx={{ display: "flex", alignItems: "center" }}
-            style={{ gridRowEnd: `span ${clientSpan}` }}
-          >
-            {params.value}
-          </Box>
-        );
-      },
-    },
-    {
-      field: "clientName",
-      headerName: "Client Name",
-      flex: 1,
-      renderCell: (params) => {
-        const { clientSpan } = params.row;
-        return (
-          <Box
-            sx={{ display: "flex", alignItems: "center" }}
-            style={{ gridRowEnd: `span ${clientSpan}` }}
-          >
-            {params.value}
-          </Box>
-        );
-      },
-    },
+    { field: "clientId", headerName: "Client ID", flex: 1 },
+    { field: "clientName", headerName: "Client Name", flex: 1 },
     { field: "serviceName", headerName: "Service Name", flex: 1 },
     {
       field: "actions",
