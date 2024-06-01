@@ -247,6 +247,7 @@ const SideBar = ({ open, handleDrawerClose, user }) => {
       <List>
         {Array1.map((item) => {
           if (item.path === "facture" && !user.isAdmin) return null;
+          if (item.text === "Dashboard" && !user.isAdmin) return null;
           return (
             <ListItem key={item.path} disablePadding sx={{ display: "block" }}>
               <Tooltip title={open ? null : item.text} placement="left">
