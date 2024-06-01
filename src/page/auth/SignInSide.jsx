@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import Avatar from "@mui/material/Avatar";
@@ -58,10 +58,12 @@ function SignInSide() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [countSignIn, setCountSignIn] = useState(0);
   // @ts-ignore
   const errorMessage = useSelector((state) => state?.user?.error);
 
   const handleSubmit = async (event) => {
+    setCountSignIn(countSignIn + 1);
     event.preventDefault();
     try {
       await login(dispatch, { email, password });
@@ -80,6 +82,13 @@ function SignInSide() {
   const handleSignUpClick = () => {
     navigate("/SignUp");
   };
+
+  useEffect(() => {
+    if(countSignIn === 3) {
+      setOpenDialog(true);
+      setCountSignIn(0);
+    }
+  },[countSignIn])
 
   return (
     <ThemeProvider theme={theme}>

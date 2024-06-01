@@ -66,6 +66,7 @@ const Services = () => {
       try {
         if(user.isAdmin) {
           const response = await userRequest.get("/service/getAllServices");
+          
         setSubscriptions(
           response.data.map((subscription) => ({
             id: subscription._id,
@@ -75,6 +76,7 @@ const Services = () => {
             date_fin: subscription.date_fin,
             statut: subscription.statut,
             type: subscription.type,
+            statique: subscription.statique
           }))
         );
         } else {
@@ -96,22 +98,21 @@ const Services = () => {
         console.log(error);
       }
     };
-
     const fetchSuppliers = async () => {
       try {
         const response = await userRequest.get("/fournisseur");
         const filteredSuppliers = response.data
-          .filter((supplier) => !supplier.nom.includes("OVHcloud"))
-          .map((supplier) => ({
-            value: supplier._id,
-            label: supplier.nom,
-          }));
+        .filter((supplier) => !supplier.nom.includes("OVHcloud"))
+        .map((supplier) => ({
+          value: supplier._id,
+          label: supplier.nom,
+        }));
         setSuppliers(filteredSuppliers);
       } catch (error) {
         console.log(error);
       }
     };
-
+    
     fetchSubscriptions();
     fetchSuppliers();
   }, []);
@@ -214,7 +215,9 @@ const Services = () => {
               <EditOutlinedIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Update Expiry Date">
+         {
+          row.statique && (
+            <Tooltip title="Update Expiry Date">
             <IconButton
               onClick={() => handleUpdateClick(row.id)}
               sx={{ color: theme.palette.warning.main }}
@@ -222,6 +225,8 @@ const Services = () => {
               <UpdateOutlinedIcon />
             </IconButton>
           </Tooltip>
+          )
+         }
         </Box>
       ),
     },
@@ -321,7 +326,7 @@ const Services = () => {
   const handleConfirmUpdate = async () => {
     try {
       await userRequest.patch(`/service/renewService`, {
-        numberOfMonths: expiryDate,
+        numberOfMonths: Number(expiryDate),
         serviceId: updateSubscriptionId,
       });
       setOpenUpdateDialog(false);
