@@ -28,8 +28,13 @@ import ClientPermissions from "./page/clientPermission/ClientPermissions";
 function ProtectedRoute({ children }) {
   // @ts-ignore
   const user = useSelector((state) => state.user?.userInfo);
-  console.log(user);
   return user ? children : <Navigate to="/" />;
+}
+
+function PublicRoute({ children }) {
+  // @ts-ignore
+  const user = useSelector((state) => state.user?.userInfo);
+  return user ? <Navigate to="/home" /> : children;
 }
 
 function ProtectAdminRoute({ children }) {
@@ -41,11 +46,10 @@ function ProtectAdminRoute({ children }) {
 // Then use it like this:
 const routes = (
   <Routes>
-    <Route path="/" element={<SignInSide />} />
-    <Route path="/ResetPasswordForm" element={<ResetPasswordForm />} />
-    <Route path="/signup" element={<SignUp />} />
-    <Route path="/set-password" element={<ChangePassword />} />
-
+    <Route path="/" element={<PublicRoute><SignInSide /></PublicRoute>} />
+    <Route path="/ResetPasswordForm" element={<PublicRoute><ResetPasswordForm /></PublicRoute>} />
+    <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
+    <Route path="/set-password" element={<PublicRoute><ChangePassword /></PublicRoute>} />
     <Route
       path="/home"
       element={
@@ -58,7 +62,9 @@ const routes = (
         index
         element={
           <ProtectedRoute>
+          <ProtectAdminRoute>
             <Dashboard />
+          </ProtectAdminRoute>
           </ProtectedRoute>
         }
       />

@@ -60,13 +60,13 @@ function SignInSide() {
   const [openDialog, setOpenDialog] = useState(false);
   const [countSignIn, setCountSignIn] = useState(0);
   // @ts-ignore
-  const errorMessage = useSelector((state) => state?.user?.error);
-
+  const user = useSelector((state) => state?.user?.userInfo);
   const handleSubmit = async (event) => {
-    setCountSignIn(countSignIn + 1);
     event.preventDefault();
     try {
-      await login(dispatch, { email, password });
+      const logined = await login(dispatch, { email, password });
+      // @ts-ignore
+      if(!logined) setCountSignIn(countSignIn + 1);
     } catch (error) {
       console.error("Erreur lors de la connexion :", error);
       setError(

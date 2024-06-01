@@ -90,6 +90,7 @@ const Services = () => {
               date_fin: subscription.date_fin,
               statut: subscription.statut,
               type: subscription.type,
+              statique: subscription.statique
             }))
           );
         }
