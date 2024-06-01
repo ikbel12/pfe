@@ -185,7 +185,7 @@ const Team = () => {
 
   const handleDeleteUser = async () => {
     try {
-      await axios.delete(`http://localhost:3000/api/user/${userToDelete}`);
+      await userRequest.delete(`/user/${userToDelete}`);
       setUsers((prevUsers) =>
         prevUsers.filter((user) => user._id !== userToDelete)
       );
@@ -203,7 +203,7 @@ const Team = () => {
 
   const handleEditUser = async () => {
     try {
-      await axios.put(`http://localhost:3000/api/user/${userToEdit._id}`, {
+      await userRequest.patch(`/user/update?id=${userToEdit._id}`, {
         prenom: userToEdit.prenom,
         nom: userToEdit.nom,
         email: userToEdit.email,
@@ -265,7 +265,7 @@ const Team = () => {
 
   const handleAddUser = async () => {
     try {
-      await axios.post("http://localhost:3000/api/auth/register", newUserData);
+      await userRequest.post("/auth/register", newUserData);
 
       setOpenDialog(false);
       setNewUserData({
