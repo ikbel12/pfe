@@ -36,8 +36,9 @@ const ProfileDialog = ({ open, handleClose }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // State for the confirm password field
   const [updated, setUpdated] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false); // State for the password dialog
+  const [openDialog, setOpenDialog] = useState(false);
 
   const [profileData, setProfileData] = useState({
     nom: user?.nom,
@@ -52,6 +53,14 @@ const ProfileDialog = ({ open, handleClose }) => {
   });
 
   const handleEditPassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords do not match", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+      return;
+    }
     try {
       await userRequest.patch("/user/change-password", {
         oldPassword,
@@ -66,10 +75,12 @@ const ProfileDialog = ({ open, handleClose }) => {
       handleCloseDialog();
       setOldPassword("");
       setNewPassword("");
+      setConfirmPassword(""); // Reset the confirm password field
     } catch (error) {
       console.log(error);
       setOldPassword("");
       setNewPassword("");
+      setConfirmPassword(""); // Reset the confirm password field
       toast.error("Error updating password", {
         duration: 4000,
         position: "top-center",
@@ -198,6 +209,14 @@ const ProfileDialog = ({ open, handleClose }) => {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Confirm New Password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               margin="normal"
             />
           </DialogContent>

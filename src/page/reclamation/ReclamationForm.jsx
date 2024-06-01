@@ -285,11 +285,12 @@ const ReclamationForm = () => {
 
 
   const columns = [
+    { field: "id", headerName: "ID reclamation", flex: 1 },
+    { field: "serviceName", headerName: "Service Name", flex: 1 },
     { field: "subject", headerName: "Subject", flex: 1 },
     { field: "body", headerName: "Body", flex: 1 },
     { field: "category", headerName: "Category", flex: 1 },
     { field: "product", headerName: "Product", flex: 1 },
-    { field: "serviceName", headerName: "Service Name", flex: 1 },
     {
       field: "action",
       headerName: "Action",
