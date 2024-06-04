@@ -60,27 +60,13 @@ const Services = () => {
   const minDate = `${today.getFullYear()}-${String(
     today.getMonth() + 1
   ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-  console.log("hello",user)
+  console.log("hello", user);
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
-        if(user.isAdmin) {
+        if (user.isAdmin) {
           const response = await userRequest.get("/service/getAllServices");
-          
-        setSubscriptions(
-          response.data.map((subscription) => ({
-            id: subscription._id,
-            nom: subscription.nom,
-            fournisseur: subscription?.fournisseur?.nom,
-            date_debut: subscription.date_debut,
-            date_fin: subscription.date_fin,
-            statut: subscription.statut,
-            type: subscription.type,
-            statique: subscription.statique
-          }))
-        );
-        } else {
-          const response = await userRequest.get(`/service/getserviceswithuser`);
+
           setSubscriptions(
             response.data.map((subscription) => ({
               id: subscription._id,
@@ -90,11 +76,26 @@ const Services = () => {
               date_fin: subscription.date_fin,
               statut: subscription.statut,
               type: subscription.type,
-              statique: subscription.statique
+              statique: subscription.statique,
+            }))
+          );
+        } else {
+          const response = await userRequest.get(
+            `/service/getserviceswithuser`
+          );
+          setSubscriptions(
+            response.data.map((subscription) => ({
+              id: subscription._id,
+              nom: subscription.nom,
+              fournisseur: subscription?.fournisseur?.nom,
+              date_debut: subscription.date_debut,
+              date_fin: subscription.date_fin,
+              statut: subscription.statut,
+              type: subscription.type,
+              statique: subscription.statique,
             }))
           );
         }
-        
       } catch (error) {
         console.log(error);
       }
@@ -103,17 +104,17 @@ const Services = () => {
       try {
         const response = await userRequest.get("/fournisseur");
         const filteredSuppliers = response.data
-        .filter((supplier) => !supplier.nom.includes("OVHcloud"))
-        .map((supplier) => ({
-          value: supplier._id,
-          label: supplier.nom,
-        }));
+          .filter((supplier) => !supplier.nom.includes("OVHcloud"))
+          .map((supplier) => ({
+            value: supplier._id,
+            label: supplier.nom,
+          }));
         setSuppliers(filteredSuppliers);
       } catch (error) {
         console.log(error);
       }
     };
-    
+
     fetchSubscriptions();
     fetchSuppliers();
   }, []);
@@ -216,18 +217,16 @@ const Services = () => {
               <EditOutlinedIcon />
             </IconButton>
           </Tooltip>
-         {
-          row.statique && (
+          {row.statique && (
             <Tooltip title="Update Expiry Date">
-            <IconButton
-              onClick={() => handleUpdateClick(row.id)}
-              sx={{ color: theme.palette.warning.main }}
-            >
-              <UpdateOutlinedIcon />
-            </IconButton>
-          </Tooltip>
-          )
-         }
+              <IconButton
+                onClick={() => handleUpdateClick(row.id)}
+                sx={{ color: theme.palette.warning.main }}
+              >
+                <UpdateOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         </Box>
       ),
     },
@@ -356,7 +355,7 @@ const Services = () => {
 
   const handleConfirmEdit = async () => {
     try {
-      const {fournisseur, ...others} = editSubscriptionData;
+      const { fournisseur, ...others } = editSubscriptionData;
       await userRequest.patch(
         `/service/updateservice/${editSubscriptionId}`,
         others
@@ -555,7 +554,7 @@ const Services = () => {
       <Dialog open={openConfirmDialog} onClose={handleCancelDelete}>
         <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          Are you sure you want to delete this subscription?
+          Are you sure you want to delete this service?
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancelDelete} color="secondary">

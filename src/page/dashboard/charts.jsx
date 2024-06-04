@@ -187,6 +187,7 @@ const Charts = () => {
                 y: {
                   ticks: {
                     color: theme.palette.text.primary,
+                    stepSize: 1, // Add this line to set the step size
                   },
                 },
               },
@@ -218,6 +219,7 @@ const Charts = () => {
                 y: {
                   ticks: {
                     color: theme.palette.text.primary,
+                    stepSize: 1, // Add this line to set the step size
                   },
                 },
               },

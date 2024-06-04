@@ -155,7 +155,7 @@ const ReclamationForm = () => {
     setOpenUpdateDialog(true);
   };
 
-  const handleCloseClick = async(id) => {
+  const handleCloseClick = async (id) => {
     try {
       await userRequest.post("reclamation/123/close");
       toast.success("Reclamation closed successfully", {
@@ -283,7 +283,6 @@ const ReclamationForm = () => {
     );
   };
 
-
   const columns = [
     { field: "id", headerName: "ID reclamation", flex: 1 },
     { field: "serviceName", headerName: "Service Name", flex: 1 },
@@ -369,8 +368,8 @@ const ReclamationForm = () => {
         style: { background: "red", color: "white" },
       });
     }
-  }
-  console.log(userDataToUpdate)
+  };
+  console.log(userDataToUpdate);
   return (
     <Box>
       <Toaster />
@@ -385,6 +384,11 @@ const ReclamationForm = () => {
           gap: 2, // Adds spacing between the buttons
         }}
       >
+        <Tooltip title="Synchronize">
+          <IconButton onClick={handleSyncClick} color="primary">
+            <SyncIcon />
+          </IconButton>
+        </Tooltip>
         <Button
           variant="contained"
           color="primary"
@@ -393,11 +397,6 @@ const ReclamationForm = () => {
         >
           Create Reclamation
         </Button>
-        <Tooltip title="Synchronize">
-          <IconButton onClick={handleSyncClick} color="primary">
-            <SyncIcon />
-          </IconButton>
-        </Tooltip>
       </Box>
       <Box sx={{ height: 650, width: "99%", mx: "auto" }}>
         <DataGrid
@@ -579,12 +578,11 @@ const ReclamationForm = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-
-
-
       {/* ------------------------------------------------- UPDATE ---------------------------------------------- */}
-      <Dialog open={openUpdateDialog} onClose={() => setOpenUpdateDialog(false)}>
+      <Dialog
+        open={openUpdateDialog}
+        onClose={() => setOpenUpdateDialog(false)}
+      >
         <DialogTitle>Edit Reclamation</DialogTitle>
         <DialogContent>
           <Box
@@ -654,10 +652,7 @@ const ReclamationForm = () => {
           <Button onClick={() => setOpenUpdateDialog(false)} color="primary">
             Cancel
           </Button>
-          <Button
-            onClick={handleUpdateReclamation}
-            color="primary"
-          >
+          <Button onClick={handleUpdateReclamation} color="primary">
             Update
           </Button>
         </DialogActions>

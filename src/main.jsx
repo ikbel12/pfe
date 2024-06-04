@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import { Provider, useSelector } from "react-redux";
-// Assurez-vous que le chemin vers votre store est correct
 import SignInSide from "./page/auth/SignInSide";
 import SignUp from "./page/auth/SignUp";
 import App from "./App";
@@ -10,7 +9,6 @@ import Dashboard from "./page/dashboard/Dashboard";
 import Team from "./page/team/Team";
 import Client from "./page/client/Client";
 import Supplier from "./page/supplier/Supplier";
-import BarChart from "./page/barChart/BarChart";
 import NotFound from "./page/notFound/NotFound";
 import ResetPasswordForm from "./page/auth/ResetPasswordForm";
 import ReclamationForm from "./page/reclamation/ReclamationForm";
@@ -40,16 +38,49 @@ function PublicRoute({ children }) {
 function ProtectAdminRoute({ children }) {
   // @ts-ignore
   const user = useSelector((state) => state.user?.userInfo);
-  return user?.isAdmin ? children : <Navigate to="/home" />;
+  return user?.isAdmin ? children : <Navigate to="/home/supplier" />;
 }
 
-// Then use it like this:
+function ProtectUserRoute({ children }) {
+  // @ts-ignore
+  const user = useSelector((state) => state.user?.userInfo);
+  return user?.isAdmin ? <Navigate to="/home/dashboard" /> : children;
+}
+
 const routes = (
   <Routes>
-    <Route path="/" element={<PublicRoute><SignInSide /></PublicRoute>} />
-    <Route path="/ResetPasswordForm" element={<PublicRoute><ResetPasswordForm /></PublicRoute>} />
-    <Route path="/signup" element={<PublicRoute><SignUp /></PublicRoute>} />
-    <Route path="/set-password" element={<PublicRoute><ChangePassword /></PublicRoute>} />
+    <Route
+      path="/"
+      element={
+        <PublicRoute>
+          <SignInSide />
+        </PublicRoute>
+      }
+    />
+    <Route
+      path="/ResetPasswordForm"
+      element={
+        <PublicRoute>
+          <ResetPasswordForm />
+        </PublicRoute>
+      }
+    />
+    <Route
+      path="/signup"
+      element={
+        <PublicRoute>
+          <SignUp />
+        </PublicRoute>
+      }
+    />
+    <Route
+      path="/set-password"
+      element={
+        <PublicRoute>
+          <ChangePassword />
+        </PublicRoute>
+      }
+    />
     <Route
       path="/home"
       element={
@@ -62,9 +93,9 @@ const routes = (
         index
         element={
           <ProtectedRoute>
-          <ProtectAdminRoute>
-            <Dashboard />
-          </ProtectAdminRoute>
+            <ProtectAdminRoute>
+              <Dashboard />
+            </ProtectAdminRoute>
           </ProtectedRoute>
         }
       />
@@ -161,14 +192,6 @@ const routes = (
             <ProtectAdminRoute>
               <ClientPermissions />
             </ProtectAdminRoute>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="bar"
-        element={
-          <ProtectedRoute>
-            <BarChart />
           </ProtectedRoute>
         }
       />

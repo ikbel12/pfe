@@ -12,26 +12,27 @@ import {
   Box,
   Tooltip,
 } from "@mui/material";
-import {
-  DeleteOutline,
-} from "@mui/icons-material";
+import { DeleteOutline } from "@mui/icons-material";
 import Header from "../../components/Header";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 import { userRequest } from "../../requestMethod";
+import SyncIcon from "@mui/icons-material/Sync";
 
 const Facture = () => {
   const theme = useTheme();
-  const [bills, setBills] = useState([{
-    billId: "",
-    orderId: "",
-    orderName: "",
-    fournisseur: "",
-    date: "",
-    pdfUrl: "",
-    priceWithoutTax: "",
-    priceWithTax: "",
-  }]);
+  const [bills, setBills] = useState([
+    {
+      billId: "",
+      orderId: "",
+      orderName: "",
+      fournisseur: "",
+      date: "",
+      pdfUrl: "",
+      priceWithoutTax: "",
+      priceWithTax: "",
+    },
+  ]);
   const [confirmDeleteDialog, setConfirmDeleteDialog] = useState(false);
   const [billToDelete, setBillToDelete] = useState(null);
 
@@ -177,21 +178,46 @@ const Facture = () => {
     fetchBills();
   }, []);
 
+  const handleSyncClick = async () => {
+    try {
+      await userRequest.get("/sync/sync-bills");
+      toast.success("Bills synchronized successfully", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "green", color: "white" },
+      });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to synchronize bills", {
+        duration: 4000,
+        position: "top-center",
+        style: { background: "red", color: "white" },
+      });
+    }
+  };
+
   return (
     <Box>
       <Toaster />
+      <Header title={"BILLS"} subTitle={"Managing the Bills"} />
       <Box
         sx={{
           display: "flex",
-          justifyContent: "space-between",
+          justifyContent: "right",
           alignItems: "center",
           mb: 2,
           px: 2,
         }}
       >
-        <Header title={"BILLS"} subTitle={"Managing the Bills"} />
+        <Tooltip title="Synchronize">
+          <IconButton onClick={handleSyncClick} color="primary">
+            <SyncIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
-     
       <Box sx={{ height: 600, mx: "auto", overflowY: "auto" }}>
         <DataGrid
           slots={{
