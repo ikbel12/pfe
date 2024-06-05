@@ -36,7 +36,6 @@ const Supplier = () => {
     ovhApiKey: "",
     ovhSecret: "",
     ovhConsumerKey: "",
-    isOvh:false
   });
   const [editMode, setEditMode] = useState(false);
   const [editSupplierId, setEditSupplierId] = useState(null);
@@ -57,7 +56,6 @@ const Supplier = () => {
             ovhApiKey: supplier.ovhApiKey || "",
             ovhSecret: supplier.ovhSecret || "",
             ovhConsumerKey: supplier.ovhConsumerKey || "",
-            isOvh:supplier.isOvh,
           }))
         );
       } catch (error) {
@@ -143,7 +141,6 @@ const Supplier = () => {
         ovhApiKey: "",
         ovhSecret: "",
         ovhConsumerKey: "",
-        isOvh:false
       });
       setShowKeys(false);
       toast.success("Supplier added successfully", {
@@ -164,7 +161,6 @@ const Supplier = () => {
   const handleEditClick = (id) => {
     const supplier = suppliers.find((supplier) => supplier.id === id);
     setEditSupplierId(id);
-    console.log(supplier.isOvh)
     setNewSupplierData({
       supplierName: supplier.nom,
       phone: supplier.telephone,
@@ -173,7 +169,6 @@ const Supplier = () => {
       ovhApiKey: supplier.ovhApiKey,
       ovhSecret: supplier.ovhSecret,
       ovhConsumerKey: supplier.ovhConsumerKey,
-      isOvh:supplier.isOvh
     });
     setEditMode(true);
     setOpenDialog(true);
@@ -230,7 +225,6 @@ const Supplier = () => {
         ovhApiKey: "",
         ovhSecret: "",
         ovhConsumerKey: "",
-        isOvh:false
       });
       setEditMode(false);
       setEditSupplierId(null);
@@ -327,7 +321,6 @@ const Supplier = () => {
             ovhApiKey: "",
             ovhSecret: "",
             ovhConsumerKey: "",
-            isOvh:false
           });
           setShowKeys(false);
         }}
@@ -381,13 +374,13 @@ const Supplier = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={editMode ? newSupplierData.isOvh : showKeys}
+                checked={showKeys}
                 onChange={(e) => setShowKeys(e.target.checked)}
               />
             }
             label="OVH Supplier"
           />
-          {editMode ? newSupplierData.isOvh : showKeys && (
+          {showKeys && (
             <>
               <TextField
                 margin="dense"
@@ -462,7 +455,6 @@ const Supplier = () => {
                 ovhApiKey: "",
                 ovhSecret: "",
                 ovhConsumerKey: "",
-                isOvh:false
               });
               setShowKeys(false);
             }}
